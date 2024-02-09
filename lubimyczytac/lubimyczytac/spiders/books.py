@@ -1,0 +1,49 @@
+import scrapy
+import re
+
+
+class BooksSpider(scrapy.Spider):
+    name = "books"
+    allowed_domains = ["lubimyczytac.pl"]
+    start_urls = ["http://lubimyczytac.pl/katalog"]
+    curr_page_num = 1
+
+    def parse(self, response):
+        books = response.xpath("//div[@class='authorAllBooks__single']/div/div[@class='col authorAllBooks__singleCenter authorAllBooks__singleCenter--list']/div/div/a[@class='authorAllBooks__singleTextTitle float-left']")
+        for book in books:
+            # title = book.xpath("normalize-space(.//text())").get()
+            url = book.xpath(".//@href").get()
+
+            yield response.follow(url=url, callback = self.parse_book)
+            # yield {
+            #     'title' : title,
+            #     'url': url
+            # }
+        self.curr_page_num += 1
+        max_page_num = response.xpath("//div/div[@id='booksFilteredListPaginatorButton']/div/nav/ul/li[@class='paginationList__info']/span/text()").get()
+        if (self.curr_page_num <= int(max_page_num)):
+            next_page = self.start_urls[0] + "?page=" + str(self.curr_page_num)
+            yield scrapy.Request(url=next_page, callback=self.parse)
+
+    def parse_book(self, response):
+        title = response.xpath("normalize-space(.//div/div[@class='title-container relative']/h1/text())").get()
+        author = response.xpath("normalize-space(.//div/div/span/a[@class='link-name d-inline-block']/text())").get()
+        isbn = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' ISBN:']/following-sibling::dd[1]/text())").get()
+        pages = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' Liczba stron:']/following-sibling::dd[1]/text())").get()
+        publisher = response.xpath("normalize-space(.//div/div/span[@class='book__txt d-block d-xs-none mt-2 ']/a/text())").get()
+        release_date = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' Data wydania:']/following-sibling::dd[1]/text())").get()
+        polish_release_date = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[@aria-label='Data pierwszego wydania polskiego']/following-sibling::dd[1]/text())").get()
+        rating = response.xpath("normalize-space(.//div/div/section/div/div[@class='rating-value']/span/text())").get()
+        ratings_number_text = response.xpath("normalize-space(.//div/div/section/div/div/section[@class='rating rating--legacy']/text()[2])").get()
+        ratings_number = re.findall(r'\d+', ratings_number_text)[0]
+        yield {
+            'title' : title,
+            'author': author,
+            'isbn': isbn,
+            'pages': pages,
+            'publisher': publisher,
+            'release_date': release_date,
+            'polish_release_date': polish_release_date,
+            'rating': rating,
+            'ratings_number': ratings_number
+        }
