@@ -38,21 +38,30 @@ class BooksSpider(scrapy.Spider):
         title = response.xpath("normalize-space(.//div/div[@class='title-container relative']/h1/text())").get()
         author = response.xpath("normalize-space(.//div/div/span/a[@class='link-name d-inline-block']/text())").get()
         isbn = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' ISBN:']/following-sibling::dd[1]/text())").get()
+        isbn = isbn.replace("-", "")
+        isbn = isbn.replace("x", "X")
         pages = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' Liczba stron:']/following-sibling::dd[1]/text())").get()
         publisher = response.xpath("normalize-space(.//div/div/span[@class='book__txt d-block d-xs-none mt-2 ']/a/text())").get()
+        original_title = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' Tytuł oryginału:']/following-sibling::dd[1]/text())").get()
         release_date = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[text()=' Data wydania:']/following-sibling::dd[1]/text())").get()
         polish_release_date = response.xpath("normalize-space(.//div/div/div[@id='book-details']/dl/dt[@aria-label='Data pierwszego wydania polskiego']/following-sibling::dd[1]/text())").get()
         rating = response.xpath("normalize-space(.//div/div/section/div/div[@class='rating-value']/span/text())").get()
         ratings_number_text = response.xpath("normalize-space(.//div/div/section/div/div/section[@class='rating rating--legacy']/text()[2])").get()
         ratings_number = re.findall(r'\d+', ratings_number_text)[0]
-        yield {
-            'title' : title,
-            'author': author,
-            'isbn': isbn,
-            'pages': pages,
-            'publisher': publisher,
-            'release_date': release_date,
-            'polish_release_date': polish_release_date,
-            'rating': rating,
-            'ratings_number': ratings_number
-        }
+        description_list = response.xpath("(//div[@id='book-description']/div/p/text())").getall()
+        description = '\n'.join(map(str, description_list))
+        
+        if isbn != "" and isbn != "0000000000000":
+            yield {
+                'title' : title,
+                'author': author,
+                'isbn': isbn,
+                'pages': pages,
+                'publisher': publisher,
+                'original_title': original_title,
+                'release_date': release_date,
+                'polish_release_date': polish_release_date,
+                'rating': rating,
+                'ratings_number': ratings_number,
+                'description': description
+            }
