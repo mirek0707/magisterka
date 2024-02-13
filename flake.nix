@@ -18,9 +18,9 @@
       pkgs.mkShell
         {
           buildInputs = [
-            pkgs.python311Full
-            pkgs.python311Packages.scrapy
-            pkgs.python311Packages.scrapy-splash
+            pkgs.python311Full:3.11.7
+            pkgs.python311Packages.scrapy:2.11.0
+            pkgs.python311Packages.scrapy-splash:0.9.0
           ];
 
           shellHook = ''
