@@ -51,7 +51,8 @@ class BooksSpider(scrapy.Spider):
         description_list = response.xpath("(//div[@id='book-description']/div/p/text())").getall()
         description = '\n'.join(map(str, description_list))
         
-        if isbn != "" and isbn != "0000000000000":
+        pattern = r'^0+(X)?$'
+        if not re.match(pattern, isbn) and isbn != "":
             yield {
                 'title' : title,
                 'author': author,
