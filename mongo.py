@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-collection_name = "test"
 uri = ""
 # Create a new client and connect to the server
 client = MongoClient(uri)
@@ -10,7 +9,7 @@ try:
 except Exception as e:
     print(e)
 
-db = client['books']
+db = client['db']
 pipeline = [
     {
         '$group': {
@@ -1025,8 +1024,8 @@ pipeline = [
             }
         }
     }, {
-        '$out': 'test'
+        '$out': 'books'
     }
 ]
-result = client['books']['test'].aggregate(pipeline, allowDiskUse=True)
+result = db['books'].aggregate(pipeline, allowDiskUse=True)
 
