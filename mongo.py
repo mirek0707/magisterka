@@ -11,182 +11,621 @@ except Exception as e:
     print(e)
 
 db = client['books']
-result = client['books']['test'].aggregate([
+pipeline = [
     {
         '$group': {
             '_id': '$isbn', 
             'title': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$title', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$title'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$title', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$title'
+                                }, 
+                                'then': '$title'
+                            }
+                        ], 
+                        'default': [
+                            '$title'
+                        ]
                     }
                 }
             }, 
             'author': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$author', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$author'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$author', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$author'
+                                }, 
+                                'then': '$author'
+                            }
+                        ], 
+                        'default': [
+                            '$author'
+                        ]
                     }
                 }
             }, 
             'pages': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$pages', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$pages'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$pages', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$pages'
+                                }, 
+                                'then': '$pages'
+                            }
+                        ], 
+                        'default': [
+                            '$pages'
+                        ]
                     }
                 }
             }, 
             'publisher': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$publisher', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$publisher'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$publisher', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$publisher'
+                                }, 
+                                'then': '$publisher'
+                            }
+                        ], 
+                        'default': [
+                            '$publisher'
+                        ]
                     }
                 }
             }, 
             'original_title': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$original_title', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$original_title'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$original_title', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$original_title'
+                                }, 
+                                'then': '$original_title'
+                            }
+                        ], 
+                        'default': [
+                            '$original_title'
+                        ]
                     }
                 }
             }, 
             'release_date': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$release_date', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$release_date'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$release_date', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$release_date'
+                                }, 
+                                'then': '$release_date'
+                            }
+                        ], 
+                        'default': [
+                            '$release_date'
+                        ]
                     }
                 }
             }, 
             'release_year': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$release_year', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$release_year'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$release_year', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$release_year'
+                                }, 
+                                'then': '$release_year'
+                            }
+                        ], 
+                        'default': [
+                            '$release_year'
+                        ]
                     }
                 }
             }, 
             'polish_release_date': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$polish_release_date', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$polish_release_date'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$polish_release_date', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$polish_release_date'
+                                }, 
+                                'then': '$polish_release_date'
+                            }
+                        ], 
+                        'default': [
+                            '$polish_release_date'
+                        ]
                     }
                 }
             }, 
             'rating_lc': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$rating_lc', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$rating_lc'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$rating_lc', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$rating_lc'
+                                }, 
+                                'then': '$rating_lc'
+                            }
+                        ], 
+                        'default': [
+                            '$rating_lc'
+                        ]
                     }
                 }
             }, 
             'ratings_lc_number': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$ratings_lc_number', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$ratings_lc_number'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$ratings_lc_number', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$ratings_lc_number'
+                                }, 
+                                'then': '$ratings_lc_number'
+                            }
+                        ], 
+                        'default': [
+                            '$ratings_lc_number'
+                        ]
                     }
                 }
             }, 
             'rating_tk': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$rating_tk', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$rating_tk'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$rating_tk', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$rating_tk'
+                                }, 
+                                'then': '$rating_tk'
+                            }
+                        ], 
+                        'default': [
+                            '$rating_tk'
+                        ]
                     }
                 }
             }, 
             'ratings_tk_number': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$ratings_tk_number', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$ratings_tk_number'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$ratings_tk_number', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$ratings_tk_number'
+                                }, 
+                                'then': '$ratings_tk_number'
+                            }
+                        ], 
+                        'default': [
+                            '$ratings_tk_number'
+                        ]
                     }
                 }
             }, 
             'description': {
-                '$addToSet': {
-                    '$cond': {
-                        'if': {
-                            '$eq': [
-                                '$description', ''
-                            ]
-                        }, 
-                        'then': '$$REMOVE', 
-                        'else': '$description'
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$description', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$description'
+                                }, 
+                                'then': '$description'
+                            }
+                        ], 
+                        'default': [
+                            '$description'
+                        ]
                     }
                 }
             }, 
             'id': {
                 '$first': '$_id'
             }
+        }
+    }, {
+        '$project': {
+            '_id': '$_id', 
+            'title': {
+                '$reduce': {
+                    'input': '$title', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'author': {
+                '$reduce': {
+                    'input': '$author', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'pages': {
+                '$reduce': {
+                    'input': '$pages', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'publisher': {
+                '$reduce': {
+                    'input': '$publisher', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'original_title': {
+                '$reduce': {
+                    'input': '$original_title', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'release_date': {
+                '$reduce': {
+                    'input': '$release_date', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'release_year': {
+                '$reduce': {
+                    'input': '$release_year', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'polish_release_date': {
+                '$reduce': {
+                    'input': '$polish_release_date', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'rating_lc': {
+                '$reduce': {
+                    'input': '$rating_lc', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'ratings_lc_number': {
+                '$reduce': {
+                    'input': '$ratings_lc_number', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'rating_tk': {
+                '$reduce': {
+                    'input': '$rating_tk', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'ratings_tk_number': {
+                '$reduce': {
+                    'input': '$ratings_tk_number', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'description': {
+                '$reduce': {
+                    'input': '$description', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'id': '$id'
+        }
+    }, {
+        '$addFields': {
+            '_id': '$_id', 
+            'title': {
+                '$filter': {
+                    'input': '$title', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'author': {
+                '$filter': {
+                    'input': '$author', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'pages': {
+                '$filter': {
+                    'input': '$pages', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'publisher': {
+                '$filter': {
+                    'input': '$publisher', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'original_title': {
+                '$filter': {
+                    'input': '$original_title', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'release_date': {
+                '$filter': {
+                    'input': '$release_date', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'release_year': {
+                '$filter': {
+                    'input': '$release_year', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'polish_release_date': {
+                '$filter': {
+                    'input': '$polish_release_date', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'rating_lc': {
+                '$filter': {
+                    'input': '$rating_lc', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'ratings_lc_number': {
+                '$filter': {
+                    'input': '$ratings_lc_number', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'rating_tk': {
+                '$filter': {
+                    'input': '$rating_tk', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'ratings_tk_number': {
+                '$filter': {
+                    'input': '$ratings_tk_number', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'description': {
+                '$filter': {
+                    'input': '$description', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'id': '$id'
         }
     }, {
         '$replaceRoot': {
@@ -588,5 +1027,6 @@ result = client['books']['test'].aggregate([
     }, {
         '$out': 'test'
     }
-])
+]
+result = client['books']['test'].aggregate(pipeline, allowDiskUse=True)
 
