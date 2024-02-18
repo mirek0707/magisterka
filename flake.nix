@@ -21,7 +21,7 @@
             pkgs.python311Full
             pkgs.python311Packages.scrapy
             pkgs.python311Packages.scrapy-splash
-	    pkgs.python311Packages.pymongo
+      	    pkgs.python311Packages.pymongo
           ];
 
           shellHook = ''
