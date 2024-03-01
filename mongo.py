@@ -302,6 +302,54 @@ pipeline = [
                     }
                 }
             }, 
+            'rating_gr': {
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$rating_gr', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$rating_gr'
+                                }, 
+                                'then': '$rating_gr'
+                            }
+                        ], 
+                        'default': [
+                            '$rating_gr'
+                        ]
+                    }
+                }
+            }, 
+            'ratings_gr_number': {
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$ratings_gr_number', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$ratings_gr_number'
+                                }, 
+                                'then': '$ratings_gr_number'
+                            }
+                        ], 
+                        'default': [
+                            '$ratings_gr_number'
+                        ]
+                    }
+                }
+            }, 
             'description': {
                 '$push': {
                     '$switch': {
@@ -465,6 +513,28 @@ pipeline = [
                     }
                 }
             }, 
+            'rating_gr': {
+                '$reduce': {
+                    'input': '$rating_gr', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
+            'ratings_gr_number': {
+                '$reduce': {
+                    'input': '$ratings_gr_number', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            },
             'description': {
                 '$reduce': {
                     'input': '$description', 
@@ -605,6 +675,28 @@ pipeline = [
             'ratings_tk_number': {
                 '$filter': {
                     'input': '$ratings_tk_number', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'rating_gr': {
+                '$filter': {
+                    'input': '$rating_gr', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'ratings_gr_number': {
+                '$filter': {
+                    'input': '$ratings_gr_number', 
                     'as': 'd', 
                     'cond': {
                         '$ne': [
@@ -989,6 +1081,66 @@ pipeline = [
                             }
                         ], 
                         'default': '$ratings_tk_number'
+                    }
+                }, 
+                'rating_gr': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$rating_gr'
+                                        }, 1
+                                    ]
+                                }, 
+                                'then': {
+                                    '$arrayElemAt': [
+                                        '$rating_gr', 0
+                                    ]
+                                }
+                            }, {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$rating_gr'
+                                        }, 0
+                                    ]
+                                }, 
+                                'then': ''
+                            }
+                        ], 
+                        'default': '$rating_gr'
+                    }
+                }, 
+                'ratings_gr_number': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$ratings_gr_number'
+                                        }, 1
+                                    ]
+                                }, 
+                                'then': {
+                                    '$arrayElemAt': [
+                                        '$ratings_gr_number', 0
+                                    ]
+                                }
+                            }, {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$ratings_gr_number'
+                                        }, 0
+                                    ]
+                                }, 
+                                'then': ''
+                            }
+                        ], 
+                        'default': '$ratings_gr_number'
                     }
                 }, 
                 'description': {
