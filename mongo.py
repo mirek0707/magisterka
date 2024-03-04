@@ -350,6 +350,30 @@ pipeline = [
                     }
                 }
             }, 
+            'img_src': {
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$img_src', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$img_src'
+                                }, 
+                                'then': '$img_src'
+                            }
+                        ], 
+                        'default': [
+                            '$img_src'
+                        ]
+                    }
+                }
+            }, 
             'description': {
                 '$push': {
                     '$switch': {
@@ -535,6 +559,17 @@ pipeline = [
                     }
                 }
             },
+            'img_src': {
+                '$reduce': {
+                    'input': '$img_src', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            },
             'description': {
                 '$reduce': {
                     'input': '$description', 
@@ -697,6 +732,17 @@ pipeline = [
             'ratings_gr_number': {
                 '$filter': {
                     'input': '$ratings_gr_number', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'img_src': {
+                '$filter': {
+                    'input': '$img_src', 
                     'as': 'd', 
                     'cond': {
                         '$ne': [
@@ -1141,6 +1187,36 @@ pipeline = [
                             }
                         ], 
                         'default': '$ratings_gr_number'
+                    }
+                }, 
+                'img_src': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$img_src'
+                                        }, 1
+                                    ]
+                                }, 
+                                'then': {
+                                    '$arrayElemAt': [
+                                        '$img_src', 0
+                                    ]
+                                }
+                            }, {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$img_src'
+                                        }, 0
+                                    ]
+                                }, 
+                                'then': ''
+                            }
+                        ], 
+                        'default': '$img_src'
                     }
                 }, 
                 'description': {
