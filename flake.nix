@@ -23,6 +23,9 @@
             pkgs.python311Packages.scrapy-splash
       	    pkgs.python311Packages.pymongo
       	    pkgs.python311Packages.python-dateutil
+            pkgs.python311Packages.fastapi
+            pkgs.python311Packages.uvicorn
+            pkgs.python311Packages.motor
           ];
 
           shellHook = ''
