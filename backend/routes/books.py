@@ -12,8 +12,20 @@ router = APIRouter(
 @router.get('/{isbn}', response_description='Get one book', response_model=BookModel)
 async def get_one_book(isbn: str):
     book = await books_collection.find_one({'isbn': isbn})
-    print(type(book))
     return book
+
+
+@router.get('/{page}/{limit}/{sort_by}/{order}', response_description='Get one book', response_model=list[BookModel])
+async def get_books_per_page(page: int, limit: int, sort_by: str = "ratings_number", order: int = -1):
+    if sort_by not in vars(BookModel) or order not in [-1, 1]:
+        raise HTTPException(
+            status_code=400, detail='Wrong sorting parameters')
+    if page <= 0 or limit <= 0:
+        raise HTTPException(
+            status_code=400, detail='Wrong pagination parameters')
+    skip = page * limit - limit
+    books = await books_collection.find().sort({sort_by: order}).skip(skip).limit(limit).to_list(length=None)
+    return books
 
 
 @router.post('/ftsearch', response_description='Full-text search in description, title, original_title, author', response_model=list[BookModel])
