@@ -2,6 +2,7 @@ from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from typing import Optional, List
 from typing_extensions import Annotated
 from pydantic.functional_validators import BeforeValidator
+from datetime import datetime
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -11,25 +12,22 @@ class BookModel(BaseModel):
     Container for a single book record.
     """
 
-    # The primary key for the StudentModel, stored as a `str` on the instance.
-    # This will be aliased to `_id` when sent to MongoDB,
-    # but provided as `id` in the API requests and responses.
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     title: str | list = Field(...)
     author: str | list = Field(...)
-    pages: str | list = Field(...)
-    isbn: str | list = Field(...)
+    pages: int | list = Field(...)
+    isbn: str = Field(...)
     publisher: str | list = Field(...)
     original_title: str | list = Field(...)
-    release_date: str | list = Field(...)
-    release_year: str | list = Field(...)
-    polish_release_date: str | list = Field(...)
-    rating_lc: str | list = Field(...)
-    ratings_lc_number: str | list = Field(...)
-    rating_tk: str | list = Field(...)
-    ratings_tk_number: str | list = Field(...)
-    rating_gr: str | list = Field(...)
-    ratings_gr_number: str | list = Field(...)
+    release_date: datetime | list = Field(...)
+    release_year: int | list = Field(...)
+    polish_release_date: datetime | list = Field(...)
+    rating_lc: float = Field(...)
+    ratings_lc_number: int = Field(...)
+    rating_tk: float = Field(...)
+    ratings_tk_number: int = Field(...)
+    rating_gr: float = Field(...)
+    ratings_gr_number: int = Field(...)
     img_src: str | list = Field(...)
     description: str | list = Field(...)
 
