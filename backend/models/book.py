@@ -28,6 +28,8 @@ class BookModel(BaseModel):
     ratings_tk_number: int = Field(...)
     rating_gr: float = Field(...)
     ratings_gr_number: int = Field(...)
+    rating: float = Field(...)
+    ratings_number: int = Field(...)
     img_src: str | list = Field(...)
     description: str | list = Field(...)
 
