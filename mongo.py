@@ -12,6 +12,95 @@ except Exception as e:
 db = client['db']
 pipeline = [
     {
+        '$addFields': {
+            'id': '$id', 
+            'title': '$title', 
+            'author': '$author', 
+            'pages': {
+                '$convert': {
+                    'input': '$pages', 
+                    'to': 'int'
+                }
+            }, 
+            'isbn': '$isbn', 
+            'publisher': '$publisher', 
+            'original_title': '$original_title', 
+            'release_date': {
+                '$dateFromString': {
+                    'dateString': '$release_date', 
+                    'timezone': 'Europe/Samara'
+                }
+            }, 
+            'release_year': {
+                '$convert': {
+                    'input': '$release_year', 
+                    'to': 'int'
+                }
+            }, 
+            'polish_release_date': {
+                '$dateFromString': {
+                    'dateString': '$polish_release_date', 
+                    'timezone': 'Europe/Samara'
+                }
+            }, 
+            'rating_lc': {
+                '$convert': {
+                    'input': {
+                        '$replaceAll': {
+                            'input': '$rating_lc', 
+                            'find': ',', 
+                            'replacement': '.'
+                        }
+                    }, 
+                    'to': 'double'
+                }
+            }, 
+            'ratings_lc_number': {
+                '$convert': {
+                    'input': '$ratings_lc_number', 
+                    'to': 'int'
+                }
+            }, 
+            'rating_tk': {
+                '$convert': {
+                    'input': {
+                        '$replaceAll': {
+                            'input': '$rating_tk', 
+                            'find': ',', 
+                            'replacement': '.'
+                        }
+                    }, 
+                    'to': 'double'
+                }
+            }, 
+            'ratings_tk_number': {
+                '$convert': {
+                    'input': '$ratings_tk_number', 
+                    'to': 'int'
+                }
+            }, 
+            'rating_gr': {
+                '$convert': {
+                    'input': {
+                        '$replaceAll': {
+                            'input': '$rating_gr', 
+                            'find': ',', 
+                            'replacement': '.'
+                        }
+                    }, 
+                    'to': 'double'
+                }
+            }, 
+            'ratings_gr_number': {
+                '$convert': {
+                    'input': '$ratings_gr_number', 
+                    'to': 'int'
+                }
+            }, 
+            'img_source': '$img_source', 
+            'description': '$description'
+        }
+    }, {
         '$group': {
             '_id': '$isbn', 
             'title': {
@@ -558,7 +647,7 @@ pipeline = [
                         ]
                     }
                 }
-            },
+            }, 
             'img_src': {
                 '$reduce': {
                     'input': '$img_src', 
@@ -569,7 +658,7 @@ pipeline = [
                         ]
                     }
                 }
-            },
+            }, 
             'description': {
                 '$reduce': {
                     'input': '$description', 
@@ -763,6 +852,102 @@ pipeline = [
                 }
             }, 
             'id': '$id'
+        }
+    }, {
+        '$redact': {
+            '$cond': {
+                'if': {
+                    '$or': [
+                        {
+                            '$gt': [
+                                {
+                                    '$size': '$rating_lc'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$rating_gr'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$rating_tk'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$ratings_lc_number'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$ratings_gr_number'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$ratings_tk_number'
+                                }, 1
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$title'
+                                }, 4
+                            ]
+                        }, {
+                            '$eq': [
+                                {
+                                    '$size': '$title'
+                                }, 0
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$pages'
+                                }, 4
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$original_title'
+                                }, 4
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$release_year'
+                                }, 4
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$release_date'
+                                }, 4
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$polish_release_date'
+                                }, 4
+                            ]
+                        }, {
+                            '$gt': [
+                                {
+                                    '$size': '$description'
+                                }, 4
+                            ]
+                        }
+                    ]
+                }, 
+                'then': '$$PRUNE', 
+                'else': '$$DESCEND'
+            }
         }
     }, {
         '$replaceRoot': {
@@ -1249,6 +1434,156 @@ pipeline = [
                         'default': '$description'
                     }
                 }
+            }
+        }
+    }, {
+        '$addFields': {
+            'ratings_number': {
+                '$add': [
+                    {
+                        '$cond': {
+                            'if': {
+                                '$ne': [
+                                    '$ratings_gr_number', ''
+                                ]
+                            }, 
+                            'then': {
+                                '$toInt': '$ratings_gr_number'
+                            }, 
+                            'else': 0
+                        }
+                    }, {
+                        '$cond': {
+                            'if': {
+                                '$ne': [
+                                    '$ratings_lc_number', ''
+                                ]
+                            }, 
+                            'then': {
+                                '$toInt': '$ratings_lc_number'
+                            }, 
+                            'else': 0
+                        }
+                    }, {
+                        '$cond': {
+                            'if': {
+                                '$ne': [
+                                    '$ratings_tk_number', ''
+                                ]
+                            }, 
+                            'then': {
+                                '$toInt': '$ratings_tk_number'
+                            }, 
+                            'else': 0
+                        }
+                    }
+                ]
+            }
+        }
+    }, {
+        '$addFields': {
+            'rating': {
+                '$divide': [
+                    {
+                        '$add': [
+                            {
+                                '$multiply': [
+                                    {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$ratings_lc_number', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toInt': '$ratings_lc_number'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }, {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$rating_lc', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toDouble': '$rating_lc'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }, 0.5
+                                ]
+                            }, {
+                                '$multiply': [
+                                    {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$ratings_tk_number', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toInt': '$ratings_tk_number'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }, {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$rating_tk', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toDouble': '$rating_tk'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }
+                                ]
+                            }, {
+                                '$multiply': [
+                                    {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$ratings_gr_number', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toInt': '$ratings_gr_number'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }, {
+                                        '$cond': {
+                                            'if': {
+                                                '$ne': [
+                                                    '$rating_gr', ''
+                                                ]
+                                            }, 
+                                            'then': {
+                                                '$toDouble': '$rating_gr'
+                                            }, 
+                                            'else': 0
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }, {
+                        '$cond': {
+                            'if': {
+                                '$eq': [
+                                    '$ratings_number', 0
+                                ]
+                            }, 
+                            'then': 1, 
+                            'else': '$ratings_number'
+                        }
+                    }
+                ]
             }
         }
     }, {
