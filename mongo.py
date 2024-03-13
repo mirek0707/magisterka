@@ -17,88 +17,189 @@ pipeline = [
             'title': '$title', 
             'author': '$author', 
             'pages': {
-                '$convert': {
-                    'input': '$pages', 
-                    'to': 'int'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$pages', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': '$pages', 
+                            'to': 'int'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'isbn': '$isbn', 
             'publisher': '$publisher', 
             'original_title': '$original_title', 
             'release_date': {
-                '$dateFromString': {
-                    'dateString': '$release_date', 
-                    'timezone': 'Europe/Samara'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$release_date', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$dateFromString': {
+                            'dateString': '$release_date', 
+                            'timezone': 'Europe/Samara'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'release_year': {
-                '$convert': {
-                    'input': '$release_year', 
-                    'to': 'int'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$release_year', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': '$release_year', 
+                            'to': 'int'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'polish_release_date': {
-                '$dateFromString': {
-                    'dateString': '$polish_release_date', 
-                    'timezone': 'Europe/Samara'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$polish_release_date', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$dateFromString': {
+                            'dateString': '$polish_release_date', 
+                            'timezone': 'Europe/Samara'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'rating_lc': {
-                '$convert': {
-                    'input': {
-                        '$replaceAll': {
-                            'input': '$rating_lc', 
-                            'find': ',', 
-                            'replacement': '.'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$rating_lc', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': {
+                                '$replaceAll': {
+                                    'input': '$rating_lc', 
+                                    'find': ',', 
+                                    'replacement': '.'
+                                }
+                            }, 
+                            'to': 'double'
                         }
                     }, 
-                    'to': 'double'
+                    'else': None
                 }
             }, 
             'ratings_lc_number': {
-                '$convert': {
-                    'input': '$ratings_lc_number', 
-                    'to': 'int'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$ratings_lc_number', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': '$ratings_lc_number', 
+                            'to': 'int'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'rating_tk': {
-                '$convert': {
-                    'input': {
-                        '$replaceAll': {
-                            'input': '$rating_tk', 
-                            'find': ',', 
-                            'replacement': '.'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$rating_tk', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': {
+                                '$replaceAll': {
+                                    'input': '$rating_tk', 
+                                    'find': ',', 
+                                    'replacement': '.'
+                                }
+                            }, 
+                            'to': 'double'
                         }
                     }, 
-                    'to': 'double'
+                    'else': None
                 }
             }, 
             'ratings_tk_number': {
-                '$convert': {
-                    'input': '$ratings_tk_number', 
-                    'to': 'int'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$ratings_tk_number', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': '$ratings_tk_number', 
+                            'to': 'int'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'rating_gr': {
-                '$convert': {
-                    'input': {
-                        '$replaceAll': {
-                            'input': '$rating_gr', 
-                            'find': ',', 
-                            'replacement': '.'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$rating_gr', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': {
+                                '$replaceAll': {
+                                    'input': '$rating_gr', 
+                                    'find': ',', 
+                                    'replacement': '.'
+                                }
+                            }, 
+                            'to': 'double'
                         }
                     }, 
-                    'to': 'double'
+                    'else': None
                 }
             }, 
             'ratings_gr_number': {
-                '$convert': {
-                    'input': '$ratings_gr_number', 
-                    'to': 'int'
+                '$cond': {
+                    'if': {
+                        '$ne': [
+                            '$ratings_gr_number', ''
+                        ]
+                    }, 
+                    'then': {
+                        '$convert': {
+                            'input': '$ratings_gr_number', 
+                            'to': 'int'
+                        }
+                    }, 
+                    'else': None
                 }
             }, 
             'img_source': '$img_source', 
-            'description': '$description'
+            'description': '$description', 
+            'genre': '$genre'
         }
     }, {
         '$group': {
@@ -487,6 +588,30 @@ pipeline = [
                     }
                 }
             }, 
+            'genre': {
+                '$push': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        '$genre', ''
+                                    ]
+                                }, 
+                                'then': '$$REMOVE'
+                            }, {
+                                'case': {
+                                    '$isArray': '$genre'
+                                }, 
+                                'then': '$genre'
+                            }
+                        ], 
+                        'default': [
+                            '$genre'
+                        ]
+                    }
+                }
+            }, 
             'id': {
                 '$first': '$_id'
             }
@@ -670,6 +795,17 @@ pipeline = [
                     }
                 }
             }, 
+            'genre': {
+                '$reduce': {
+                    'input': '$genre', 
+                    'initialValue': [], 
+                    'in': {
+                        '$setUnion': [
+                            '$$value', '$$this'
+                        ]
+                    }
+                }
+            }, 
             'id': '$id'
         }
     }, {
@@ -843,6 +979,17 @@ pipeline = [
             'description': {
                 '$filter': {
                     'input': '$description', 
+                    'as': 'd', 
+                    'cond': {
+                        '$ne': [
+                            '$$d', None
+                        ]
+                    }
+                }
+            }, 
+            'genre': {
+                '$filter': {
+                    'input': '$genre', 
                     'as': 'd', 
                     'cond': {
                         '$ne': [
@@ -1432,6 +1579,36 @@ pipeline = [
                             }
                         ], 
                         'default': '$description'
+                    }
+                }, 
+                'genre': {
+                    '$switch': {
+                        'branches': [
+                            {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$genre'
+                                        }, 1
+                                    ]
+                                }, 
+                                'then': {
+                                    '$arrayElemAt': [
+                                        '$genre', 0
+                                    ]
+                                }
+                            }, {
+                                'case': {
+                                    '$eq': [
+                                        {
+                                            '$size': '$genre'
+                                        }, 0
+                                    ]
+                                }, 
+                                'then': ''
+                            }
+                        ], 
+                        'default': '$genre'
                     }
                 }
             }
