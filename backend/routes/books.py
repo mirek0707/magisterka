@@ -117,4 +117,17 @@ async def search_book(query: str, num_of_books: int = 5):
 
 @router.post('')
 async def add_book(create_book_model: CreateBookModel):
-    return
+    book = await books_collection.find_one({'isbn': create_book_model.isbn})
+    if book is not None:
+        raise HTTPException(
+            status_code=409, detail=f'Book with ISBN: \'{create_book_model.isbn}\' already exist')
+
+    new_book = BookModel(**create_book_model.model_dump(), rating_lc=None, rating_gr=None, 
+                         rating_tk=None, ratings_lc_number=None, ratings_gr_number=None, ratings_tk_number=None, 
+                         rating=None, ratings_number=None)
+    result = await books_collection.insert_one(new_book.model_dump(exclude=["id"]))
+
+    if result.inserted_id:
+        return {"message": "Book added successfully!"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to add book to database")

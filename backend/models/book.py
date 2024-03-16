@@ -1,4 +1,4 @@
-from pydantic import ConfigDict, BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field, HttpUrl
 from typing import Optional
 from typing_extensions import Annotated
 from pydantic.functional_validators import BeforeValidator, field_validator
@@ -14,7 +14,7 @@ class CreateBookModel(BaseModel):
     """
 
     title: str = Field(...)
-    author: str | list | None = Field(...)
+    author: str | list[str] | None = Field(...)
     pages: int | None = Field(...)
     isbn: str = Field(...)
     publisher: str | None = Field(...)
@@ -22,7 +22,7 @@ class CreateBookModel(BaseModel):
     release_date: datetime | None = Field(...)
     release_year: int | None = Field(...)
     polish_release_date: datetime | None = Field(...)
-    img_src: str | list | None = Field(...)
+    img_src: HttpUrl | list[HttpUrl] | str = Field(...)
     description: str | None = Field(...)
     genre: str | None = Field(...)
 
@@ -34,6 +34,30 @@ class CreateBookModel(BaseModel):
             raise ValueError('ISBN is not valid')
 
         return isbn
+    
+    @field_validator('pages')
+    @classmethod
+    def validate_pages(cls, pages: int) -> int:
+        if pages <= 0:
+            raise ValueError('Number of pages is not valid')
+        return pages
+    
+    @field_validator("img_src")
+    def validate_image_url(cls, img_src: HttpUrl | list[HttpUrl]) :
+        if img_src is not None:
+            if type(img_src) is list:
+                for url in img_src:
+                    path = url.path
+                    if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                        raise ValueError("The URL must lead to an image (jpg, jpeg, png, or gif)") 
+            else:
+                if img_src == "":
+                    return img_src
+                path = img_src.path
+                if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                    raise ValueError("The URL must lead to an image (jpg, jpeg, png, or gif)")
+        return img_src
+
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -69,26 +93,26 @@ class BookModel(BaseModel):
     """
 
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    title: str | list = Field(...)
-    author: str | list = Field(...)
-    pages: int | list | None = Field(...)
+    title: str | list[str] = Field(...)
+    author: str | list[str] = Field(...)
+    pages: int | list[int] | None = Field(...)
     isbn: str = Field(...)
-    publisher: str | list = Field(...)
-    original_title: str | list = Field(...)
-    release_date: datetime | list | None = Field(...)
-    release_year: int | list | None = Field(...)
-    polish_release_date: datetime | list | None = Field(...)
+    publisher: str | list[str] = Field(...)
+    original_title: str | list[str] = Field(...)
+    release_date: datetime | list[datetime]| None = Field(...)
+    release_year: int | list[int] | None = Field(...)
+    polish_release_date: datetime | list[datetime] | None = Field(...)
     rating_lc: float | None = Field(...)
     ratings_lc_number: int | None = Field(...)
     rating_tk: float | None = Field(...)
     ratings_tk_number: int | None = Field(...)
     rating_gr: float | None = Field(...)
     ratings_gr_number: int | None = Field(...)
-    rating: float = Field(...)
-    ratings_number: int = Field(...)
-    img_src: str | list = Field(...)
-    description: str | list = Field(...)
-    genre: str | list = Field(...)
+    rating: float | None = Field(...)
+    ratings_number: int | None = Field(...)
+    img_src: str | list[str] = Field(...)
+    description: str | list[str] = Field(...)
+    genre: str | list[str] = Field(...)
 
     model_config = ConfigDict(
         populate_by_name=True,
