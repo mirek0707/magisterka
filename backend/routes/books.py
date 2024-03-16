@@ -1,7 +1,7 @@
 import datetime
 from fastapi import APIRouter, HTTPException
 from database.db import books_collection
-from models.book import BookModel
+from models.book import BookModel, CreateBookModel
 
 router = APIRouter(
     prefix='/books',
@@ -113,3 +113,8 @@ async def search_book(query: str, num_of_books: int = 5):
     books = books[:num_of_books]
 
     return books
+
+
+@router.post('')
+async def add_book(create_book_model: CreateBookModel):
+    return

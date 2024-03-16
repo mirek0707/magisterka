@@ -29,6 +29,7 @@
             pkgs.mongosh
             pkgs.python311Packages.pydantic-extra-types
             pkgs.python311Packages.email-validator
+            pkgs.python311Packages.pyisbn
           ];
 
           shellHook = ''
