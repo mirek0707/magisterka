@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter, HTTPException
 from database.db import books_collection
 from models.book import BookModel
@@ -12,19 +13,55 @@ router = APIRouter(
 @router.get('/{isbn}', response_description='Get one book', response_model=BookModel)
 async def get_one_book(isbn: str):
     book = await books_collection.find_one({'isbn': isbn})
+    if (not book):
+        raise HTTPException(
+            status_code=404)
     return book
 
 
-@router.get('/{page}/{limit}/{sort_by}/{order}', response_description='Get one book', response_model=list[BookModel])
-async def get_books_per_page(page: int, limit: int, sort_by: str = "ratings_number", order: int = -1):
-    if sort_by not in vars(BookModel) or order not in [-1, 1]:
+@router.get('', response_description='Get one book', response_model=list[BookModel])
+async def get_books_per_page(page: int = 1, limit: int = 30, sort_by: str = "ratings_number", order: int = -1,
+                             release_year_from: int | None = None, release_year_to: int | None = None, author: str | None = None,
+                             publisher: str | None = None, genre: str | None = None):
+    sort_by_list = BookModel.model_fields.keys()
+    if sort_by not in sort_by_list or order not in [-1, 1]:
         raise HTTPException(
             status_code=400, detail='Wrong sorting parameters')
     if page <= 0 or limit <= 0:
         raise HTTPException(
             status_code=400, detail='Wrong pagination parameters')
     skip = page * limit - limit
-    books = await books_collection.find().sort({sort_by: order}).skip(skip).limit(limit).to_list(length=None)
+
+    query = {}
+
+    if release_year_from is not None and release_year_to is not None:
+        from_date = datetime.datetime(
+            release_year_from - 1, 12, 31, 12, 30, 30, 125000)
+        to_date = datetime.datetime(
+            release_year_to, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [{"release_year": {"$gte": release_year_from, "$lte": release_year_to}}, {
+            "release_date": {"$gt": from_date, "$lte": to_date}}]
+    elif release_year_from is not None:
+        from_date = datetime.datetime(
+            release_year_from - 1, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [{"release_year": {"$gte": release_year_from}}, {
+            "release_date": {"$gt": from_date}}]
+    elif release_year_to is not None:
+        to_date = datetime.datetime(
+            release_year_to, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [{"release_year": {"$lte": release_year_to}}, {
+            "release_date": {"$lte": to_date}}]
+
+    if author:
+        query["author"] = {"$regex": author, "$options": "i"}
+
+    if publisher:
+        query["publisher"] = {"$regex": publisher, "$options": "i"}
+
+    if genre:
+        query["genre"] = {"$regex": genre, "$options": "i"}
+
+    books = await books_collection.find(query).sort({sort_by: order}).skip(skip).limit(limit).to_list(length=None)
     return books
 
 

@@ -27,6 +27,8 @@
             pkgs.python311Packages.uvicorn
             pkgs.python311Packages.motor
             pkgs.mongosh
+            pkgs.python311Packages.pydantic-extra-types
+            pkgs.python311Packages.email-validator
           ];
 
           shellHook = ''
