@@ -34,30 +34,31 @@ class CreateBookModel(BaseModel):
             raise ValueError('ISBN is not valid')
 
         return isbn
-    
+
     @field_validator('pages')
     @classmethod
     def validate_pages(cls, pages: int) -> int:
         if pages <= 0:
             raise ValueError('Number of pages is not valid')
         return pages
-    
+
     @field_validator("img_src")
-    def validate_image_url(cls, img_src: HttpUrl | list[HttpUrl]) :
+    def validate_image_url(cls, img_src: HttpUrl | list[HttpUrl]):
         if img_src is not None:
             if type(img_src) is list:
                 for url in img_src:
                     path = url.path
                     if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                        raise ValueError("The URL must lead to an image (jpg, jpeg, png, or gif)") 
+                        raise ValueError(
+                            "The URL must lead to an image (jpg, jpeg, png, or gif)")
             else:
                 if img_src == "":
                     return img_src
                 path = img_src.path
                 if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                    raise ValueError("The URL must lead to an image (jpg, jpeg, png, or gif)")
+                    raise ValueError(
+                        "The URL must lead to an image (jpg, jpeg, png, or gif)")
         return img_src
-
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -99,7 +100,7 @@ class BookModel(BaseModel):
     isbn: str = Field(...)
     publisher: str | list[str] = Field(...)
     original_title: str | list[str] = Field(...)
-    release_date: datetime | list[datetime]| None = Field(...)
+    release_date: datetime | list[datetime] | None = Field(...)
     release_year: int | list[int] | None = Field(...)
     polish_release_date: datetime | list[datetime] | None = Field(...)
     rating_lc: float | None = Field(...)
