@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routes.books import router as BooksRouter
+from routes.users import router as UsersRouter
 
 app = FastAPI()
 
@@ -9,3 +10,4 @@ async def read_root():
     return {"message": "App is running"}
 
 app.include_router(BooksRouter)
+app.include_router(UsersRouter)
