@@ -28,7 +28,7 @@ class UserModel(BaseModel):
                 "username": "Mirek_0707",
                 "password": "41d43dc0277b2206",
                 "email": "mirek0707@interia.pl",
-                "role": "USER"
+                "role": "USER",
             }
         },
     )
@@ -53,7 +53,7 @@ class CreateUserModel(BaseModel):
                 "username": "Mirek_0707",
                 "password": "41d43dc0277b2206",
                 "email": "mirek0707@interia.pl",
-                "role": "USER"
+                "role": "USER",
             }
         },
     )

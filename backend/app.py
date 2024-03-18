@@ -9,5 +9,6 @@ app = FastAPI()
 async def read_root():
     return {"message": "App is running"}
 
+
 app.include_router(BooksRouter)
 app.include_router(UsersRouter)
