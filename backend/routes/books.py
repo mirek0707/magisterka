@@ -1,8 +1,10 @@
 import datetime
 from fastapi import APIRouter, HTTPException
 from database.db import books_collection
-from models.book import BookModel, CreateBookModel
+from models.book import BookModel, CreateBookModel, UpdateBookModel
 from pyisbn import Isbn
+from utils.rating import ratingNumberSum, calculateRating
+from bson.objectid import ObjectId
 
 router = APIRouter(
     prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}
@@ -161,7 +163,7 @@ async def add_book(create_book_model: CreateBookModel):
     result = await books_collection.insert_one(new_book.model_dump(exclude=["id"]))
 
     if result.inserted_id:
-        return {"message": "Book added successfully!"}
+        return {"message": "Book added successfully"}
     else:
         raise HTTPException(status_code=500, detail="Failed to add book to database")
 
@@ -181,5 +183,38 @@ async def delete_one_book(isbn: str):
 
     result = await books_collection.delete_one({"isbn": isbn})
     if result.deleted_count == 1:
-        return {"message": "Book deleted successfully!"}
+        return {"message": "Book deleted successfully"}
     raise HTTPException(status_code=404)
+
+
+@router.put("/{book_id}")
+async def update_book(book_id: str, updateBookModel: UpdateBookModel):
+    existing_book = await books_collection.find_one({"_id": ObjectId(book_id)})
+    if existing_book is None:
+        raise HTTPException(status_code=404)
+
+    rating = calculateRating(
+        updateBookModel.rating_lc,
+        updateBookModel.rating_gr,
+        updateBookModel.rating_tk,
+        updateBookModel.ratings_lc_number,
+        updateBookModel.ratings_gr_number,
+        updateBookModel.ratings_tk_number,
+    )
+    ratings_number = ratingNumberSum(
+        updateBookModel.ratings_lc_number,
+        updateBookModel.ratings_gr_number,
+        updateBookModel.ratings_tk_number,
+    )
+
+    updated_data = BookModel(
+        **updateBookModel.model_dump(),
+        rating=rating,
+        ratings_number=ratings_number,
+    )
+    updated_data = updateBookModel.model_dump(exclude_unset=True)
+    await books_collection.update_one(
+        {"_id": ObjectId(book_id)}, {"$set": updated_data}
+    )
+
+    return {"message": "Book updated successfully"}
