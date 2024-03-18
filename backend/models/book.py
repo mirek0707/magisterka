@@ -22,7 +22,7 @@ class CreateBookModel(BaseModel):
     release_date: datetime | None = Field(...)
     release_year: int | None = Field(...)
     polish_release_date: datetime | None = Field(...)
-    img_src: HttpUrl | list[HttpUrl] | str = Field(...)
+    img_src: str | None = Field(...)
     description: str | None = Field(...)
     genre: str | None = Field(...)
 
@@ -43,23 +43,20 @@ class CreateBookModel(BaseModel):
         return pages
 
     @field_validator("img_src")
-    def validate_image_url(cls, img_src: HttpUrl | list[HttpUrl]):
-        if img_src is not None:
-            if type(img_src) is list:
-                for url in img_src:
-                    path = url.path
-                    if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                        raise ValueError(
-                            "The URL must lead to an image (jpg, jpeg, png, or gif)"
-                        )
-            else:
-                if img_src == "":
-                    return img_src
-                path = img_src.path
-                if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
-                    raise ValueError(
-                        "The URL must lead to an image (jpg, jpeg, png, or gif)"
-                    )
+    def validate_image_url(cls, img_src: str):
+        if img_src is not None and img_src != "":
+            try:
+                img_src_obj = HttpUrl(img_src)
+            except:
+                raise ValueError("Image URL is not valid")
+
+            path = img_src_obj.path
+            if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                raise ValueError(
+                    "The URL must lead to an image (jpg, jpeg, png, or gif)"
+                )
+        else:
+            return ""
         return img_src
 
     model_config = ConfigDict(

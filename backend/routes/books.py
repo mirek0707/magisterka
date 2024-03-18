@@ -2,6 +2,7 @@ import datetime
 from fastapi import APIRouter, HTTPException
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel
+from pyisbn import Isbn
 
 router = APIRouter(
     prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}
@@ -10,13 +11,24 @@ router = APIRouter(
 
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
 async def get_one_book(isbn: str):
+    try:
+        isbn_obj = Isbn(isbn)
+        if not isbn_obj.validate():
+            raise ValueError("ISBN is not valid")
+    except:
+        raise HTTPException(status_code=422, detail="Not a valid ISBN")
+
     book = await books_collection.find_one({"isbn": isbn})
     if not book:
         raise HTTPException(status_code=404)
     return book
 
 
-@router.get("", response_description="Get one book", response_model=list[BookModel])
+@router.get(
+    "",
+    response_description="Get books with pagination, sorting and filters",
+    response_model=list[BookModel],
+)
 async def get_books_per_page(
     page: int = 1,
     limit: int = 30,
@@ -30,9 +42,9 @@ async def get_books_per_page(
 ):
     sort_by_list = BookModel.model_fields.keys()
     if sort_by not in sort_by_list or order not in [-1, 1]:
-        raise HTTPException(status_code=400, detail="Wrong sorting parameters")
+        raise HTTPException(status_code=422, detail="Wrong sorting parameters")
     if page <= 0 or limit <= 0:
-        raise HTTPException(status_code=400, detail="Wrong pagination parameters")
+        raise HTTPException(status_code=422, detail="Wrong pagination parameters")
     skip = page * limit - limit
 
     query = {}
@@ -83,11 +95,11 @@ async def get_books_per_page(
 )
 async def full_text_search_book(query: str, num_of_books: int = 30):
     if not query:
-        raise HTTPException(status_code=400, detail="Query parameter cannot be empty")
+        raise HTTPException(status_code=422, detail="Query parameter cannot be empty")
 
     if len(query) < 3:
         raise HTTPException(
-            status_code=400, detail="Query parameter must have at least 3 characters"
+            status_code=422, detail="Query parameter must have at least 3 characters"
         )
 
     projection = {"score": {"$meta": "textScore"}}
@@ -135,7 +147,6 @@ async def add_book(create_book_model: CreateBookModel):
             status_code=409,
             detail=f"Book with ISBN: '{create_book_model.isbn}' already exist",
         )
-
     new_book = BookModel(
         **create_book_model.model_dump(),
         rating_lc=None,
@@ -153,3 +164,22 @@ async def add_book(create_book_model: CreateBookModel):
         return {"message": "Book added successfully!"}
     else:
         raise HTTPException(status_code=500, detail="Failed to add book to database")
+
+
+@router.delete("/{isbn}", response_description="Delete one book")
+async def delete_one_book(isbn: str):
+    try:
+        isbn_obj = Isbn(isbn)
+        if not isbn_obj.validate():
+            raise ValueError("ISBN is not valid")
+    except:
+        raise HTTPException(status_code=422, detail="Not a valid ISBN")
+
+    book = await books_collection.find_one({"isbn": isbn})
+    if not book:
+        raise HTTPException(status_code=404)
+
+    result = await books_collection.delete_one({"isbn": isbn})
+    if result.deleted_count == 1:
+        return {"message": "Book deleted successfully!"}
+    raise HTTPException(status_code=404)
