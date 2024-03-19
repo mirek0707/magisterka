@@ -30,6 +30,9 @@
             pkgs.python311Packages.pydantic-extra-types
             pkgs.python311Packages.email-validator
             pkgs.python311Packages.pyisbn
+            pkgs.python311Packages.passlib
+            pkgs.python311Packages.bcrypt
+            pkgs.python311Packages.python-dotenv
           ];
 
           shellHook = ''

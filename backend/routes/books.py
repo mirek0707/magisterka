@@ -1,5 +1,5 @@
 import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel, UpdateBookModel
 from pyisbn import Isbn
@@ -7,7 +7,14 @@ from utils.rating import ratingNumberSum, calculateRating
 from bson.objectid import ObjectId
 
 router = APIRouter(
-    prefix="/books", tags=["books"], responses={404: {"description": "Not found"}}
+    prefix="/books",
+    tags=["books"],
+    responses={
+        201: {"description": "Record created"},
+        404: {"description": "Not found"},
+        409: {"description": "Conflict, record already in database"},
+        500: {"description": "Internal server error"},
+    },
 )
 
 
@@ -163,7 +170,7 @@ async def add_book(create_book_model: CreateBookModel):
     result = await books_collection.insert_one(new_book.model_dump(exclude=["id"]))
 
     if result.inserted_id:
-        return {"message": "Book added successfully"}
+        return Response(status_code=201, content="Book added successfully")
     else:
         raise HTTPException(status_code=500, detail="Failed to add book to database")
 

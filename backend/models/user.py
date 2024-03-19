@@ -1,10 +1,13 @@
-from pydantic import ConfigDict, BaseModel, Field, EmailStr
+from pydantic import ConfigDict, BaseModel, Field, EmailStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from pydantic.functional_validators import BeforeValidator
 from models.userRole import UserRole
+from passlib.context import CryptContext
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
+
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserModel(BaseModel):
@@ -43,6 +46,12 @@ class CreateUserModel(BaseModel):
     password: str = Field(...)
     email: EmailStr = Field(...)
     role: UserRole
+
+    @field_validator("password")
+    def validate_password(cls, password: str):
+        if len(password) < 6:
+            raise ValueError(f"Password is too short")
+        return bcrypt_context.hash(password)
 
     model_config = ConfigDict(
         from_attributes=True,
