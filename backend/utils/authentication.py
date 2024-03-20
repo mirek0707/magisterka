@@ -1,6 +1,6 @@
 import pytz
 import os
-from jose import jwt, jwtError
+from jose import jwt, JWTError
 from typing import Annotated
 from datetime import timedelta, datetime
 from fastapi import Depends, HTTPException
@@ -35,7 +35,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
                 detail="Could not validate user",
             )
         return {"username": username, "id": id, "role": role}
-    except jwtError:
+    except JWTError:
         raise HTTPException(
             status_code=401,
             detail="Could not validate user",
