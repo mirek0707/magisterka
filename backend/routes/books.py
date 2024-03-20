@@ -1,5 +1,6 @@
 import datetime
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel, UpdateBookModel
 from pyisbn import Isbn
@@ -170,7 +171,9 @@ async def add_book(create_book_model: CreateBookModel):
     result = await books_collection.insert_one(new_book.model_dump(exclude=["id"]))
 
     if result.inserted_id:
-        return Response(status_code=201, content="Book added successfully")
+        return JSONResponse(
+            status_code=201, content={"message": "Book added successfully"}
+        )
     else:
         raise HTTPException(status_code=500, detail="Failed to add book to database")
 
