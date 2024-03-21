@@ -1,11 +1,14 @@
 import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel, UpdateBookModel
 from pyisbn import Isbn
 from utils.rating import ratingNumberSum, calculateRating
 from bson.objectid import ObjectId
+from typing import Annotated
+from utils.authentication import RoleChecker
+from models.userRole import UserRole
 
 router = APIRouter(
     prefix="/books",
@@ -18,9 +21,14 @@ router = APIRouter(
     },
 )
 
+admin_dependency = Annotated[bool, Depends(RoleChecker(allowed_roles=[UserRole.ADMIN]))]
+user_dependency = Annotated[
+    bool, Depends(RoleChecker(allowed_roles=[UserRole.USER, UserRole.ADMIN]))
+]
+
 
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
-async def get_one_book(isbn: str):
+async def get_one_book(isbn: str, _: user_dependency):
     try:
         isbn_obj = Isbn(isbn)
         if not isbn_obj.validate():
@@ -40,6 +48,7 @@ async def get_one_book(isbn: str):
     response_model=list[BookModel],
 )
 async def get_books_per_page(
+    _: user_dependency,
     page: int = 1,
     limit: int = 30,
     sort_by: str = "ratings_number",
@@ -103,7 +112,7 @@ async def get_books_per_page(
     response_description="Full-text search in description, title, original_title, author",
     response_model=list[BookModel],
 )
-async def full_text_search_book(query: str, num_of_books: int = 30):
+async def full_text_search_book(_: user_dependency, query: str, num_of_books: int = 30):
     if not query:
         raise HTTPException(status_code=422, detail="Query parameter cannot be empty")
 
@@ -129,7 +138,7 @@ async def full_text_search_book(query: str, num_of_books: int = 30):
     response_description="Search by author, title or original_title",
     response_model=list[BookModel],
 )
-async def search_book(query: str, num_of_books: int = 5):
+async def search_book(_: user_dependency, query: str, num_of_books: int = 5):
     if not query:
         raise HTTPException(status_code=400, detail="Query parameter cannot be empty")
 
@@ -150,7 +159,7 @@ async def search_book(query: str, num_of_books: int = 5):
 
 
 @router.post("")
-async def add_book(create_book_model: CreateBookModel):
+async def add_book(_: user_dependency, create_book_model: CreateBookModel):
     book = await books_collection.find_one({"isbn": create_book_model.isbn})
     if book is not None:
         raise HTTPException(
@@ -179,7 +188,7 @@ async def add_book(create_book_model: CreateBookModel):
 
 
 @router.delete("/{isbn}", response_description="Delete one book")
-async def delete_one_book(isbn: str):
+async def delete_one_book(_: admin_dependency, isbn: str):
     try:
         isbn_obj = Isbn(isbn)
         if not isbn_obj.validate():
@@ -198,7 +207,9 @@ async def delete_one_book(isbn: str):
 
 
 @router.put("/{book_id}")
-async def update_book(book_id: str, updateBookModel: UpdateBookModel):
+async def update_book(
+    _: admin_dependency, book_id: str, updateBookModel: UpdateBookModel
+):
     existing_book = await books_collection.find_one({"_id": ObjectId(book_id)})
     if existing_book is None:
         raise HTTPException(status_code=404)

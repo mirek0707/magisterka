@@ -3,11 +3,11 @@ import os
 from jose import jwt, JWTError
 from typing import Annotated
 from datetime import timedelta, datetime
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from bson.objectid import ObjectId
 
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="user/login")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 
 def create_access_token(username: str, id: str, role: str, expires_delta: timedelta):
@@ -21,22 +21,33 @@ def create_access_token(username: str, id: str, role: str, expires_delta: timede
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
-    # role: https://blog.stackademic.com/fastapi-role-base-access-control-with-jwt-9fa2922a088c
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate user",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         payload = jwt.decode(
-            token, os.environ["SECRET_KEY"], algorithm=os.environ["ALGORITHM"]
+            token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]]
         )
         username: str = payload.get("sub")
         id: ObjectId = ObjectId(payload.get("id"))
         role: str = payload.get("role")
         if username is None or id is None or role is None:
-            raise HTTPException(
-                status_code=401,
-                detail="Could not validate user",
-            )
+            raise credentials_exception
         return {"username": username, "id": id, "role": role}
     except JWTError:
+        raise credentials_exception
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, user: Annotated[dict, Depends(get_current_user)]):
+        if user["role"] in self.allowed_roles:
+            return True
         raise HTTPException(
-            status_code=401,
-            detail="Could not validate user",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You don't have enough permissions",
         )
