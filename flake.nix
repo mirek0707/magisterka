@@ -33,7 +33,6 @@
             pkgs.python311Packages.passlib
             pkgs.python311Packages.bcrypt
             pkgs.python311Packages.python-dotenv
-            pkgs.python311Packages.multipart
             pkgs.python311Packages.python-jose
             pkgs.python311Packages.pytz
           ];
