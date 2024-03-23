@@ -78,7 +78,9 @@ async def get_user_shelves(user_id: str, _: user_dependency):
     "/{shelf_id}/add/{isbn}",
     response_description="Add book to shelf",
 )
-async def add_book_to_shelf(shelf_id: str, isbn: str, _: user_dependency):
+async def add_book_to_shelf(
+    shelf_id: str, isbn: str, curr_user: current_user_depedency, _: user_dependency
+):
     try:
         shelf_id_object = ObjectId(shelf_id)
     except InvalidId:
@@ -92,26 +94,38 @@ async def add_book_to_shelf(shelf_id: str, isbn: str, _: user_dependency):
             raise ValueError("ISBN is not valid")
     except:
         raise HTTPException(status_code=422, detail="Not a valid ISBN")
-    result = await shelves_collection.update_one(
-        {"_id": shelf_id_object}, {"$addToSet": {"books": isbn}}
-    )
-    if result.modified_count == 1:
-        return {"message": "Shelf updated successfully"}
-    elif result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Shelf not found")
-    elif result.modified_count == 0:
-        raise HTTPException(
-            status_code=409,
-            detail="Book already exists on the shelf",
+
+    shelf = await shelves_collection.find_one({"_id": shelf_id_object})
+    if (
+        UserRole(curr_user["role"]) is UserRole.ADMIN
+        or curr_user["id"] == shelf["user_id"]
+    ):
+        result = await shelves_collection.update_one(
+            {"_id": shelf_id_object}, {"$addToSet": {"books": isbn}}
         )
-    raise HTTPException(status_code=500, detail="Failed to add book to shelf")
+        if result.modified_count == 1:
+            return {"message": "Shelf updated successfully"}
+        elif result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Shelf not found")
+        elif result.modified_count == 0:
+            raise HTTPException(
+                status_code=409,
+                detail="Book already exists on the shelf",
+            )
+        raise HTTPException(status_code=500, detail="Failed to add book to shelf")
+    raise HTTPException(
+        status_code=401,
+        detail="You don't have enough permissions",
+    )
 
 
 @router.patch(
     "/{shelf_id}/del/{isbn}",
     response_description="Delete book from shelf",
 )
-async def delete_book_from_shelf(shelf_id: str, isbn: str, _: user_dependency):
+async def delete_book_from_shelf(
+    shelf_id: str, isbn: str, curr_user: current_user_depedency, _: user_dependency
+):
     try:
         shelf_id_object = ObjectId(shelf_id)
     except InvalidId:
@@ -126,19 +140,28 @@ async def delete_book_from_shelf(shelf_id: str, isbn: str, _: user_dependency):
     except:
         raise HTTPException(status_code=422, detail="Not a valid ISBN")
 
-    result = await shelves_collection.update_one(
-        {"_id": shelf_id_object}, {"$pull": {"books": isbn}}
-    )
-    if result.modified_count == 1:
-        return {"message": "Shelf updated successfully"}
-    elif result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Shelf not found")
-    elif result.modified_count == 0:
-        raise HTTPException(
-            status_code=409,
-            detail="Book not found on the shelf",
+    shelf = await shelves_collection.find_one({"_id": shelf_id_object})
+    if (
+        UserRole(curr_user["role"]) is UserRole.ADMIN
+        or curr_user["id"] == shelf["user_id"]
+    ):
+        result = await shelves_collection.update_one(
+            {"_id": shelf_id_object}, {"$pull": {"books": isbn}}
         )
-    raise HTTPException(status_code=500, detail="Failed to delete book from shelf")
+        if result.modified_count == 1:
+            return {"message": "Shelf updated successfully"}
+        elif result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Shelf not found")
+        elif result.modified_count == 0:
+            raise HTTPException(
+                status_code=409,
+                detail="Book not found on the shelf",
+            )
+        raise HTTPException(status_code=500, detail="Failed to delete book from shelf")
+    raise HTTPException(
+        status_code=401,
+        detail="You don't have enough permissions",
+    )
 
 
 @router.delete("/{shelf_id}", response_description="Delete shelf")
