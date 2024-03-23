@@ -10,3 +10,4 @@ db = client.db
 
 books_collection = db.get_collection("books")
 users_collection = db.get_collection("users")
+shelves_collection = db.get_collection("shelves")

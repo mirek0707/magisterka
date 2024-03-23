@@ -238,6 +238,9 @@ async def update_book(
         ratings_number=ratings_number,
     )
     updated_data = updateBookModel.model_dump(exclude_unset=True)
-    await books_collection.update_one({"_id": book_id_obj}, {"$set": updated_data})
-
-    return {"message": "Book updated successfully"}
+    result = await books_collection.update_one(
+        {"_id": book_id_obj}, {"$set": updated_data}
+    )
+    if result.modified_count == 1:
+        return {"message": "Book updated successfully"}
+    raise HTTPException(status_code=500, detail="Failed to update book")
