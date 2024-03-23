@@ -66,3 +66,28 @@ class CreateUserModel(BaseModel):
             }
         },
     )
+
+
+class GetUserModel(BaseModel):
+    """
+    Container for a single user data without password.
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    username: str = Field(...)
+    email: EmailStr = Field(...)
+    role: UserRole
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "_id": "65e5e5f41d43dc0277b22066",
+                "username": "Mirek_0707",
+                "email": "mirek0707@interia.pl",
+                "role": "USER",
+            }
+        },
+    )

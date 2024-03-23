@@ -6,6 +6,7 @@ from datetime import timedelta, datetime
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from bson.objectid import ObjectId
+from models.userRole import UserRole
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
 
@@ -40,14 +41,23 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         raise credentials_exception
 
 
+current_user_depedency = Annotated[dict, Depends(get_current_user)]
+
+
 class RoleChecker:
     def __init__(self, allowed_roles):
         self.allowed_roles = allowed_roles
 
-    def __call__(self, user: Annotated[dict, Depends(get_current_user)]):
+    def __call__(self, user: current_user_depedency):
         if user["role"] in self.allowed_roles:
             return True
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You don't have enough permissions",
         )
+
+
+admin_dependency = Annotated[bool, Depends(RoleChecker(allowed_roles=[UserRole.ADMIN]))]
+user_dependency = Annotated[
+    bool, Depends(RoleChecker(allowed_roles=[UserRole.USER, UserRole.ADMIN]))
+]

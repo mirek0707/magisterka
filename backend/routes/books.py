@@ -1,30 +1,24 @@
 import datetime
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel, UpdateBookModel
 from pyisbn import Isbn
 from utils.rating import ratingNumberSum, calculateRating
-from bson.objectid import ObjectId
-from typing import Annotated
-from utils.authentication import RoleChecker
-from models.userRole import UserRole
+from bson.objectid import ObjectId, InvalidId
+from utils.authentication import admin_dependency, user_dependency
 
 router = APIRouter(
     prefix="/books",
     tags=["books"],
     responses={
         201: {"description": "Record created"},
+        400: {"description": "Bad request"},
         404: {"description": "Not found"},
         409: {"description": "Conflict, record already in database"},
         500: {"description": "Internal server error"},
     },
 )
-
-admin_dependency = Annotated[bool, Depends(RoleChecker(allowed_roles=[UserRole.ADMIN]))]
-user_dependency = Annotated[
-    bool, Depends(RoleChecker(allowed_roles=[UserRole.USER, UserRole.ADMIN]))
-]
 
 
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
@@ -210,7 +204,14 @@ async def delete_one_book(_: admin_dependency, isbn: str):
 async def update_book(
     _: admin_dependency, book_id: str, updateBookModel: UpdateBookModel
 ):
-    existing_book = await books_collection.find_one({"_id": ObjectId(book_id)})
+    try:
+        book_id_obj = ObjectId(book_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid book ID",
+        )
+    existing_book = await books_collection.find_one({"_id": book_id_obj})
     if existing_book is None:
         raise HTTPException(status_code=404)
 
@@ -234,8 +235,6 @@ async def update_book(
         ratings_number=ratings_number,
     )
     updated_data = updateBookModel.model_dump(exclude_unset=True)
-    await books_collection.update_one(
-        {"_id": ObjectId(book_id)}, {"$set": updated_data}
-    )
+    await books_collection.update_one({"_id": book_id_obj}, {"$set": updated_data})
 
     return {"message": "Book updated successfully"}
