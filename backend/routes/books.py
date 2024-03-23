@@ -13,6 +13,7 @@ router = APIRouter(
     tags=["books"],
     responses={
         201: {"description": "Record created"},
+        204: {"description": "No content, record deleted successfully"},
         400: {"description": "Bad request"},
         404: {"description": "Not found"},
         409: {"description": "Conflict, record already in database"},
@@ -196,7 +197,9 @@ async def delete_one_book(_: admin_dependency, isbn: str):
 
     result = await books_collection.delete_one({"isbn": isbn})
     if result.deleted_count == 1:
-        return {"message": "Book deleted successfully"}
+        return JSONResponse(
+            status_code=204, content={"message": "Book deleted successfully"}
+        )
     raise HTTPException(status_code=404)
 
 

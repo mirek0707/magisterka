@@ -21,6 +21,7 @@ router = APIRouter(
     tags=["user"],
     responses={
         201: {"description": "Record created"},
+        204: {"description": "No content, record deleted successfully"},
         400: {"description": "Bad request"},
         401: {"description": "Unauthenticated"},
         404: {"description": "Not found"},
@@ -111,7 +112,9 @@ async def delete_user_account(
     ):
         result = await users_collection.delete_one({"_id": user_id_object})
         if result.deleted_count == 1:
-            return {"message": "User deleted successfully"}
+            return JSONResponse(
+                status_code=204, content={"message": "User deleted successfully"}
+            )
         raise HTTPException(status_code=404, detail="User not found")
     raise HTTPException(
         status_code=401,
