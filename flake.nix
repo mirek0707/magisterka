@@ -35,6 +35,7 @@
             pkgs.python311Packages.python-dotenv
             pkgs.python311Packages.python-jose
             pkgs.python311Packages.pytz
+            pkgs.python311Packages.beautifulsoup4
           ];
 
           shellHook = ''

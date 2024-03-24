@@ -8,8 +8,10 @@ from utils.authentication import (
     user_dependency,
     current_user_depedency,
 )
+from utils.spider import get_shelves, get_userId, get_books_from_shelf
 from bson.objectid import ObjectId, InvalidId
 from pyisbn import Isbn
+import requests
 
 router = APIRouter(
     prefix="/shelf",
@@ -20,6 +22,56 @@ router = APIRouter(
         409: {"description": "Conflict"},
     },
 )
+
+
+@router.get(
+    "/importLC",
+    response_description="import shelves with books from lubimyczytac",
+)
+async def run_lc_shelves_spider():
+    url = "https://lubimyczytac.pl/ksiegozbior/zdQRDjYDfE"
+    shelves = get_shelves(url)
+    uid = get_userId(url)
+
+    shelves_with_books = dict()
+    request_url = "https://lubimyczytac.pl/profile/getLibraryBooksList"
+    for k, v in shelves.items():
+        print(v)
+        page = 1
+        shelf_links = list()
+        while True:
+            try:
+                response = requests.post(
+                    request_url,
+                    data={
+                        "page": page,
+                        "listId": "booksFilteredList",
+                        "kolejnosc": "data-dodania",
+                        "showFirstLetter": "0",
+                        "listType": "list",
+                        "objectId": uid,
+                        "own": "0",
+                        "shelfs[]": v,
+                        "paginatorType": "Standard",
+                    },
+                    headers={
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Host": "lubimyczytac.pl",
+                    },
+                )
+                response.raise_for_status()
+                links = get_books_from_shelf(response.json()["data"]["content"])
+                shelf_links.extend(links)
+                page += 1
+
+            except requests.exceptions.RequestException as e:
+                print("nie dziala cos", e)
+                break
+
+        shelves_with_books[k] = shelf_links
+
+    return {"shelves": shelves, "uid": uid, "shelves_with_books": shelves_with_books}
 
 
 @router.get(
