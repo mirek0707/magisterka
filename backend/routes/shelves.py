@@ -8,7 +8,7 @@ from utils.authentication import (
     user_dependency,
     current_user_depedency,
 )
-from utils.spider import get_shelves, get_userId, get_books_from_shelf
+from utils.spider import get_shelves, get_userId, get_books_from_shelf, get_book_content
 from bson.objectid import ObjectId, InvalidId
 from pyisbn import Isbn
 import requests
@@ -71,7 +71,24 @@ async def run_lc_shelves_spider():
 
         shelves_with_books[k] = shelf_links
 
-    return {"shelves": shelves, "uid": uid, "shelves_with_books": shelves_with_books}
+    books_set = list()
+    for k, v in shelves_with_books.items():
+        for i in range(len(v)):
+            book = get_book_content(shelves_with_books[k][i])
+            if book is not None:
+                shelves_with_books[k][i] = book["isbn"]
+                books_set.append(book)
+
+    for k, v in shelves_with_books.items():
+        shelves_with_books[k] = [item for item in v if "http" not in item]
+
+    list({v["isbn"]: v for v in books_set}.values())
+    return {
+        "shelves": shelves,
+        "uid": uid,
+        "shelves_with_books": shelves_with_books,
+        "books": books_set,
+    }
 
 
 @router.get(
