@@ -3,7 +3,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from database.db import users_collection
-from models.user import UserModel, CreateUserModel, GetUserModel, bcrypt_context
+from models.user import (
+    UserModel,
+    CreateUserModel,
+    GetUserModel,
+    bcrypt_context,
+    EditUserModel,
+)
 from models.userRole import UserRole
 from models.token import Token
 from fastapi.security import OAuth2PasswordRequestForm
@@ -32,7 +38,6 @@ router = APIRouter(
 
 @router.post("/register", response_description="Register a new user")
 async def create_user(create_user_model: CreateUserModel):
-    print(create_user_model)
     existing_username = await users_collection.find_one(
         {"username": create_user_model.username}
     )
@@ -92,6 +97,34 @@ async def get_user_info(_: user_dependency, user_id: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return GetUserModel.model_validate(user)
+
+
+@router.put("/edit", response_description="Edit a user")
+async def edit_user(
+    _: user_dependency, curr_user: current_user_depedency, edit_user: EditUserModel
+):
+    user_id_object = ObjectId(edit_user.id)
+    if (
+        UserRole(curr_user["role"]) is UserRole.ADMIN
+        or curr_user["id"] == user_id_object
+    ):
+        result = await users_collection.update_one(
+            {"_id": user_id_object}, {"$set": edit_user.model_dump(exclude=["id"])}
+        )
+        if result.modified_count == 1:
+            return {"message": "User updated successfully"}
+        elif result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        elif result.modified_count == 0:
+            raise HTTPException(
+                status_code=409,
+                detail="User data does not change in query",
+            )
+        raise HTTPException(status_code=500, detail="Failed to edit user")
+    raise HTTPException(
+        status_code=401,
+        detail="You don't have enough permissions",
+    )
 
 
 @router.delete("/{user_id}", response_description="Delete user account")

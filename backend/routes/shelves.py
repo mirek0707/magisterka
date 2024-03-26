@@ -120,6 +120,32 @@ async def get_one_shelf(user_id: str, shelf_id: str, _: user_dependency):
     return shelf
 
 
+@router.post(
+    "/add",
+    response_description="Add shelf",
+)
+async def add_shelf(name: str, curr_user: current_user_depedency, _: user_dependency):
+    shelf = await shelves_collection.find_one(
+        {"user_id": ObjectId(curr_user["id"]), "name": name}
+    )
+    if not shelf:
+        result = await shelves_collection.insert_one(
+            {"name": name, "user_id": ObjectId(curr_user["id"]), "books": list()}
+        )
+
+        if result.inserted_id:
+            return JSONResponse(
+                status_code=201, content={"message": "Shelf added successfully"}
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to add shelf")
+    else:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Shelf with name: '{name}' already exist for current user",
+        )
+
+
 @router.get(
     "/{user_id}",
     response_description="Get all user's shelves",

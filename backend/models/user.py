@@ -91,3 +91,32 @@ class GetUserModel(BaseModel):
             }
         },
     )
+
+
+class EditUserModel(BaseModel):
+    """
+    Container for a editing user data.
+    """
+
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    password: str = Field(...)
+    email: EmailStr = Field(...)
+
+    @field_validator("password")
+    def validate_password(cls, password: str):
+        if len(password) < 6:
+            raise ValueError(f"Password is too short")
+        return bcrypt_context.hash(password)
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "_id": "65e5e5f41d43dc0277b22066",
+                "password": "41d43dc0277b2206",
+                "email": "mirek0707@interia.pl",
+            }
+        },
+    )
