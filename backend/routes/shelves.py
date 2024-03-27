@@ -1,14 +1,18 @@
+import os
 from models.userRole import UserRole
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from database.db import shelves_collection
+from database.db import shelves_collection, books_collection
 from models.shelf import ShelfModel
+from models.book import BookModel
 from utils.authentication import (
     admin_dependency,
     user_dependency,
     current_user_depedency,
 )
 from utils.spider import get_shelves, get_userId, get_books_from_shelf, get_book_content
+from utils.other import merge_values
+from utils.rating import calculateRating, ratingNumberSum
 from bson.objectid import ObjectId, InvalidId
 from pyisbn import Isbn
 import requests
@@ -28,8 +32,8 @@ router = APIRouter(
     "/importLC",
     response_description="import shelves with books from lubimyczytac",
 )
-async def run_lc_shelves_spider():
-    url = "https://lubimyczytac.pl/ksiegozbior/zdQRDjYDfE"
+async def run_lc_shelves_spider(curr_user: current_user_depedency, _: user_dependency):
+    url = "https://lubimyczytac.pl/ksiegozbior/DBnt8Eoyfi"
     shelves = get_shelves(url)
     uid = get_userId(url)
 
@@ -83,6 +87,120 @@ async def run_lc_shelves_spider():
         shelves_with_books[k] = [item for item in v if "http" not in item]
 
     list({v["isbn"]: v for v in books_set}.values())
+
+    for k, v in shelves_with_books.items():
+        shelf = await shelves_collection.find_one(
+            {"user_id": ObjectId(curr_user["id"]), "name": k}
+        )
+        if not shelf:
+            result = await shelves_collection.insert_one(
+                {"name": k, "user_id": ObjectId(curr_user["id"]), "books": v}
+            )
+
+            if result.inserted_id:
+                print(f"Shelf '{k}' added successfully")
+            else:
+                print(f"Failed to add shelf '{k}'")
+        else:
+            result = await shelves_collection.update_one(
+                {"_id": shelf["_id"]}, {"$addToSet": {"books": {"$each": v}}}
+            )
+            if result.modified_count == 1:
+                print(f"Shelf '{k}' updated successfully")
+            elif result.modified_count == 0:
+                print(f"Books already exists on the shelf '{k}'")
+            else:
+                print(f"Shelf '{k}' update failed")
+
+    print("\n")
+    for book in books_set:
+        isbn = book["isbn"]
+        existing_book = await books_collection.find_one({"isbn": isbn})
+        if not existing_book:
+            new_book = BookModel(
+                id=None,
+                isbn=isbn,
+                title=book["title"],
+                author=book["author"],
+                pages=book["pages"],
+                publisher=book["publisher"],
+                original_title=book["original_title"],
+                release_date=book["release_date"],
+                release_year=None,
+                polish_release_date=book["polish_release_date"],
+                rating_lc=book["rating_lc"],
+                ratings_lc_number=book["ratings_lc_number"],
+                rating_gr=None,
+                rating_tk=None,
+                ratings_gr_number=None,
+                ratings_tk_number=None,
+                rating=book["rating_lc"] / 2,
+                ratings_number=book["ratings_lc_number"],
+                genre=book["genre"],
+                description=book["description"],
+                img_src=book["img_src"],
+            )
+            result = await books_collection.insert_one(
+                new_book.model_dump(exclude=["id"])
+            )
+            if result.inserted_id:
+                print(f"Book '{isbn}' added successfully")
+            else:
+                print(f"Failed to add book '{isbn}'")
+        else:
+            update = BookModel(
+                id=None,
+                isbn=isbn,
+                title=merge_values(existing_book["title"], book["title"]),
+                author=merge_values(existing_book["author"], book["author"]),
+                pages=merge_values(existing_book["pages"], book["pages"]),
+                publisher=merge_values(existing_book["publisher"], book["publisher"]),
+                original_title=merge_values(
+                    existing_book["original_title"], book["original_title"]
+                ),
+                release_date=merge_values(
+                    existing_book["release_date"], book["release_date"]
+                ),
+                release_year=existing_book["release_year"],
+                polish_release_date=merge_values(
+                    existing_book["polish_release_date"], book["polish_release_date"]
+                ),
+                rating_lc=book["rating_lc"],
+                ratings_lc_number=book["ratings_lc_number"],
+                rating_gr=existing_book["rating_gr"],
+                rating_tk=existing_book["rating_tk"],
+                ratings_gr_number=existing_book["ratings_gr_number"],
+                ratings_tk_number=existing_book["ratings_tk_number"],
+                rating=calculateRating(
+                    book["rating_lc"],
+                    existing_book["rating_gr"],
+                    existing_book["rating_tk"],
+                    book["ratings_lc_number"],
+                    existing_book["ratings_gr_number"],
+                    existing_book["ratings_tk_number"],
+                ),
+                ratings_number=ratingNumberSum(
+                    book["ratings_lc_number"],
+                    existing_book["ratings_gr_number"],
+                    existing_book["ratings_tk_number"],
+                ),
+                genre=book["genre"],
+                description=book["description"],
+                img_src=merge_values(
+                    existing_book["img_src"],
+                    book["img_src"],
+                ),
+            )
+            result = await books_collection.update_one(
+                {"isbn": isbn}, {"$set": update.model_dump(exclude=["id", "isbn"])}
+            )
+            if result.modified_count == 1:
+                print(f"Book '{isbn}' updated successfully")
+            elif result.modified_count == 0:
+                print(f"Book '{isbn}' data does not changed")
+            else:
+                print(f"Book '{isbn}' update failed")
+
     return {
         "shelves": shelves,
         "uid": uid,
