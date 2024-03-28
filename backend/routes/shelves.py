@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from database.db import shelves_collection, books_collection
 from models.shelf import ShelfModel
 from models.book import BookModel
+from pydantic import HttpUrl
 from utils.authentication import (
     admin_dependency,
     user_dependency,
@@ -28,12 +29,17 @@ router = APIRouter(
 )
 
 
-@router.get(
+@router.put(
     "/importLC",
     response_description="import shelves with books from lubimyczytac",
 )
-async def run_lc_shelves_spider(curr_user: current_user_depedency, _: user_dependency):
-    url = "https://lubimyczytac.pl/ksiegozbior/DBnt8Eoyfi"
+async def run_lc_shelves_spider(
+    url: str, curr_user: current_user_depedency, _: user_dependency
+):
+    try:
+        HttpUrl(url)
+    except:
+        raise HTTPException(status_code=400)
     shelves = get_shelves(url)
     uid = get_userId(url)
 

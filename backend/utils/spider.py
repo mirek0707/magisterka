@@ -94,7 +94,7 @@ def get_book_content(url):
                 str(
                     soup.find(string=" Data wydania:").findNext("dd").contents[0]
                 ).strip()
-            ).replace(tzinfo=pytz.timezone("Europe/Samara"))
+            ).replace(hour=12, minute=00)
         except AttributeError:
             release_date = None
 
@@ -103,7 +103,7 @@ def get_book_content(url):
                 str(
                     soup.find(string=" Data 1. wyd. pol.:").findNext("dd").contents[0]
                 ).strip()
-            ).replace(tzinfo=pytz.timezone("Europe/Samara"))
+            ).replace(hour=12, minute=00)
         except AttributeError:
             polish_release_date = None
 
