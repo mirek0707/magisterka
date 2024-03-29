@@ -1,4 +1,3 @@
-import os
 from models.userRole import UserRole
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
@@ -7,7 +6,6 @@ from models.shelf import ShelfModel
 from models.book import BookModel
 from pydantic import HttpUrl
 from utils.authentication import (
-    admin_dependency,
     user_dependency,
     current_user_depedency,
 )
@@ -22,9 +20,14 @@ router = APIRouter(
     prefix="/shelf",
     tags=["shelf"],
     responses={
+        200: {"description": "OK"},
+        201: {"description": "Shelf created"},
         400: {"description": "Bad request"},
+        401: {"description": "Unauthorized"},
         404: {"description": "Not found"},
         409: {"description": "Conflict"},
+        422: {"description": "Unprocessable content"},
+        500: {"description": "Internal server error"},
     },
 )
 
@@ -401,9 +404,7 @@ async def delete_shelf(
     ):
         result = await shelves_collection.delete_one({"_id": shelf_id_object})
         if result.deleted_count == 1:
-            return JSONResponse(
-                status_code=200, content={"message": "Shelf deleted successfully"}
-            )
+            return {"message": "Shelf deleted successfully"}
         raise HTTPException(status_code=404, detail="Shelf not found")
     raise HTTPException(
         status_code=401,

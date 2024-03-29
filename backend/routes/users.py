@@ -15,7 +15,6 @@ from models.token import Token
 from fastapi.security import OAuth2PasswordRequestForm
 from utils.authentication import (
     create_access_token,
-    admin_dependency,
     user_dependency,
     current_user_depedency,
 )
@@ -26,9 +25,10 @@ router = APIRouter(
     prefix="/user",
     tags=["user"],
     responses={
+        200: {"description": "OK"},
         201: {"description": "Record created"},
         400: {"description": "Bad request"},
-        401: {"description": "Unauthenticated"},
+        401: {"description": "Unauthorized"},
         404: {"description": "Not found"},
         409: {"description": "Conflict, record already in database"},
         500: {"description": "Internal server error"},
@@ -36,7 +36,7 @@ router = APIRouter(
 )
 
 
-@router.post("/register", response_description="Register a new user")
+@router.post("/register", response_description="Create a new user")
 async def create_user(create_user_model: CreateUserModel):
     existing_username = await users_collection.find_one(
         {"username": create_user_model.username}
@@ -54,15 +54,13 @@ async def create_user(create_user_model: CreateUserModel):
         return JSONResponse(
             status_code=201, content={"message": "User registered successfully"}
         )
-    else:
-        raise HTTPException(
-            status_code=500, detail="Failed to register user to database"
-        )
+
+    raise HTTPException(status_code=500, detail="Failed to register user to database")
 
 
 @router.post(
     "/login",
-    response_description="Login to your account and get access token",
+    response_description="Get users access token",
     response_model=Token,
 )
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
@@ -144,9 +142,7 @@ async def delete_user_account(
     ):
         result = await users_collection.delete_one({"_id": user_id_object})
         if result.deleted_count == 1:
-            return JSONResponse(
-                status_code=200, content={"message": "User deleted successfully"}
-            )
+            return {"message": "User deleted successfully"}
         raise HTTPException(status_code=404, detail="User not found")
     raise HTTPException(
         status_code=401,
