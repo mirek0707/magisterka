@@ -36,6 +36,7 @@
             pkgs.python311Packages.python-jose
             pkgs.python311Packages.pytz
             pkgs.python311Packages.beautifulsoup4
+            pkgs.nodejs_21
           ];
 
           shellHook = ''
