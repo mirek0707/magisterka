@@ -154,6 +154,23 @@ class UpdateBookModel(BaseModel):
             return ""
         return img_src
 
+    @field_validator("img_src")
+    def validate_image_url_list(cls, img_src_list: list[str]):
+        if len(img_src_list) == 0:
+            return ""
+        for img_src in img_src_list:
+            try:
+                img_src_obj = HttpUrl(img_src)
+            except:
+                raise ValueError("One of image URL is not valid")
+
+            path = img_src_obj.path
+            if not path.endswith((".jpg", ".jpeg", ".png", ".gif")):
+                raise ValueError(
+                    "The URL must lead to an image (jpg, jpeg, png, or gif)"
+                )
+        return img_src
+
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
