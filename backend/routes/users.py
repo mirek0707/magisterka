@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from database.db import users_collection
+from database.db import users_collection, shelves_collection
 from models.user import (
     UserModel,
     CreateUserModel,
@@ -27,6 +27,7 @@ router = APIRouter(
     responses={
         200: {"description": "OK"},
         201: {"description": "Record created"},
+        207: {"description": "Record partialy deleted"},
         400: {"description": "Bad request"},
         401: {"description": "Unauthorized"},
         404: {"description": "Not found"},
@@ -49,8 +50,30 @@ async def create_user(create_user_model: CreateUserModel):
     new_user = UserModel(**create_user_model.model_dump())
 
     result = await users_collection.insert_one(new_user.model_dump(exclude=["id"]))
+    user_id = result.inserted_id
 
-    if result.inserted_id:
+    if user_id:
+        shelves_names = ["Przeczytane", "Teraz czytam", "Chcę przeczytać"]
+        for shelf_name in shelves_names:
+            shelf_result = await shelves_collection.insert_one(
+                {"name": shelf_name, "user_id": user_id, "books": list()}
+            )
+            if shelf_result.inserted_id:
+                print("Added shelf", shelf_name, "for user", user_id)
+            else:
+                print("Failed to add shelf", shelf_name, "for user", user_id)
+                user_delete_result = await users_collection.delete_one({"_id": user_id})
+                await shelves_collection.delete_many({"user_id": user_id})
+                if user_delete_result.deleted_count == 1:
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Failed to register user to database. Cleanup successful",
+                    )
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to register user to database. Cleanup failed",
+                )
+
         return JSONResponse(
             status_code=201, content={"message": "User registered successfully"}
         )
@@ -142,7 +165,21 @@ async def delete_user_account(
     ):
         result = await users_collection.delete_one({"_id": user_id_object})
         if result.deleted_count == 1:
-            return {"message": "User deleted successfully"}
+            shelves_delete_result = await shelves_collection.delete_many(
+                {"user_id": user_id_object}
+            )
+            if shelves_delete_result.deleted_count > 1:
+                return {
+                    "message": "User deleted successfully. User shelves deleted successfully"
+                }
+            else:
+                return JSONResponse(
+                    status_code=207,
+                    content={
+                        "message": "User deleted successfully. Failed to delete user shelves",
+                        "status": "Multi-Status",
+                    },
+                )
         raise HTTPException(status_code=404, detail="User not found")
     raise HTTPException(
         status_code=401,
