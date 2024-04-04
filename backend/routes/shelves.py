@@ -1,5 +1,5 @@
 from models.userRole import UserRole
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from database.db import shelves_collection, books_collection
 from models.shelf import ShelfModel
@@ -10,10 +10,12 @@ from utils.authentication import (
     current_user_depedency,
 )
 from utils.spider import get_shelves, get_userId, get_books_from_shelf, get_book_content
-from utils.other import merge_values
+from utils.other import merge_values, validate_csv_file, clean_isbn, clean_title
 from utils.rating import calculateRating, ratingNumberSum
 from bson.objectid import ObjectId, InvalidId
 from pyisbn import Isbn
+from pandas import read_csv
+from copy import deepcopy
 import requests
 
 router = APIRouter(
@@ -27,6 +29,7 @@ router = APIRouter(
         403: {"description": "Forbidden"},
         404: {"description": "Not found"},
         409: {"description": "Conflict"},
+        415: {"description": "Unsupported media type"},
         422: {"description": "Unprocessable content"},
         500: {"description": "Internal server error"},
     },
@@ -222,6 +225,161 @@ async def run_lc_shelves_spider(
         "shelves_with_books": shelves_with_books,
         "books": books_set,
     }
+
+
+@router.put(
+    "/importGR",
+    response_description="import shelves with books from goodreads",
+)
+async def create_upload_file(
+    file: UploadFile, curr_user: current_user_depedency, _: user_dependency
+):
+    if not validate_csv_file(deepcopy(file)):
+        raise HTTPException(
+            status_code=415,
+            detail="Only CSV files exported from goodreads are supported",
+        )
+    df = read_csv(file.file)
+    df["ISBN13"] = df["ISBN13"].apply(clean_isbn)
+    df["ISBN"] = df["ISBN"].apply(clean_isbn)
+    df["Title"] = df["Title"].apply(clean_title)
+
+    shelves_dict = {}
+
+    for index, row in df.iterrows():
+        # Podział wartości kolumny "Bookshelves" i "Exclusive Shelf" po przecinku
+        bookshelves = [
+            shelf.strip().capitalize().replace("-", " ")
+            for shelf in row["Bookshelves"].split(",")
+        ]
+        exclusive_shelves = [
+            shelf.strip().capitalize().replace("-", " ")
+            for shelf in row["Exclusive Shelf"].split(",")
+        ]
+
+        # Dodanie ISBN książki do odpowiednich półek
+        for shelf in bookshelves + exclusive_shelves:
+            if shelf not in shelves_dict:
+                shelves_dict[shelf] = set()
+            shelves_dict[shelf].add(row["ISBN13"])
+
+    shelves_dict = {key: list(value) for key, value in shelves_dict.items()}
+
+    shelves_dict = {
+        "Przeczytane" if key == "Read" else key: value
+        for key, value in shelves_dict.items()
+    }
+    shelves_dict = {
+        "Teraz czytam" if key == "Currently reading" else key: value
+        for key, value in shelves_dict.items()
+    }
+    shelves_dict = {
+        "Chcę przeczytać" if key == "To read" else key: value
+        for key, value in shelves_dict.items()
+    }
+
+    for k, v in shelves_dict.items():
+        shelf = await shelves_collection.find_one(
+            {"user_id": ObjectId(curr_user["id"]), "name": k}
+        )
+        if not shelf:
+            result = await shelves_collection.insert_one(
+                {
+                    "name": k,
+                    "user_id": ObjectId(curr_user["id"]),
+                    "books": v,
+                    "is_default": False,
+                }
+            )
+
+            if result.inserted_id:
+                print(f"Shelf '{k}' added successfully")
+            else:
+                print(f"Failed to add shelf '{k}'")
+        else:
+            result = await shelves_collection.update_one(
+                {"_id": shelf["_id"]}, {"$addToSet": {"books": {"$each": v}}}
+            )
+            if result.modified_count == 1:
+                print(f"Shelf '{k}' updated successfully")
+            elif result.modified_count == 0:
+                print(f"Books already exists on the shelf '{k}'")
+            else:
+                print(f"Shelf '{k}' update failed")
+
+    print("\n")
+
+    for index, row in df.iterrows():
+        isbn = row["ISBN13"]
+        existing_book = await books_collection.find_one({"isbn": isbn})
+        if not existing_book:
+            new_book = BookModel(
+                id=None,
+                isbn=isbn,
+                title=row["Title"],
+                author=row["Author"],
+                pages=row["Number of Pages"],
+                publisher=row["Publisher"],
+                original_title="",
+                release_date=None,
+                release_year=row["Year Published"],
+                polish_release_date=None,
+                rating_lc=None,
+                ratings_lc_number=None,
+                rating_gr=None,
+                rating_tk=None,
+                ratings_gr_number=None,
+                ratings_tk_number=None,
+                rating=None,
+                ratings_number=None,
+                genre="",
+                description="",
+                img_src="",
+            )
+            result = await books_collection.insert_one(
+                new_book.model_dump(exclude=["id"])
+            )
+            if result.inserted_id:
+                print(f"Book '{isbn}' added successfully")
+            else:
+                print(f"Failed to add book '{isbn}'")
+        else:
+            update = BookModel(
+                id=None,
+                isbn=isbn,
+                title=merge_values(existing_book["title"], row["Title"]),
+                author=merge_values(existing_book["author"], row["Author"]),
+                pages=merge_values(existing_book["pages"], row["Number of Pages"]),
+                publisher=merge_values(existing_book["publisher"], row["Publisher"]),
+                original_title=existing_book["original_title"],
+                release_date=existing_book["release_date"],
+                release_year=merge_values(
+                    existing_book["release_year"], row["Year Published"]
+                ),
+                polish_release_date=existing_book["polish_release_date"],
+                rating_lc=existing_book["rating_lc"],
+                ratings_lc_number=existing_book["ratings_lc_number"],
+                rating_gr=existing_book["rating_gr"],
+                rating_tk=existing_book["rating_tk"],
+                ratings_gr_number=existing_book["ratings_gr_number"],
+                ratings_tk_number=existing_book["ratings_tk_number"],
+                rating=existing_book["rating"],
+                ratings_number=existing_book["ratings_number"],
+                genre=existing_book["genre"],
+                description=existing_book["description"],
+                img_src=existing_book["img_src"],
+            )
+            result = await books_collection.update_one(
+                {"isbn": isbn}, {"$set": update.model_dump(exclude=["id", "isbn"])}
+            )
+            if result.modified_count == 1:
+                print(f"Book '{isbn}' updated successfully")
+            elif result.modified_count == 0:
+                print(f"Book '{isbn}' data does not changed")
+            else:
+                print(f"Book '{isbn}' update failed")
+
+    return shelves_dict
 
 
 @router.get(

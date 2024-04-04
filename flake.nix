@@ -37,6 +37,8 @@
             pkgs.python311Packages.pytz
             pkgs.python311Packages.beautifulsoup4
             pkgs.nodejs_21
+            pkgs.python311Packages.multipart
+            pkgs.python311Packages.pandas
           ];
 
           shellHook = ''
