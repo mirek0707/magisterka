@@ -24,6 +24,7 @@ router = APIRouter(
         201: {"description": "Shelf created"},
         400: {"description": "Bad request"},
         401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
         404: {"description": "Not found"},
         409: {"description": "Conflict"},
         422: {"description": "Unprocessable content"},
@@ -103,7 +104,12 @@ async def run_lc_shelves_spider(
         )
         if not shelf:
             result = await shelves_collection.insert_one(
-                {"name": k, "user_id": ObjectId(curr_user["id"]), "books": v}
+                {
+                    "name": k,
+                    "user_id": ObjectId(curr_user["id"]),
+                    "books": v,
+                    "is_default": False,
+                }
             )
 
             if result.inserted_id:
@@ -257,7 +263,12 @@ async def add_shelf(name: str, curr_user: current_user_depedency, _: user_depend
     )
     if not shelf:
         result = await shelves_collection.insert_one(
-            {"name": name, "user_id": ObjectId(curr_user["id"]), "books": list()}
+            {
+                "name": name,
+                "user_id": ObjectId(curr_user["id"]),
+                "books": list(),
+                "is_default": False,
+            }
         )
 
         if result.inserted_id:
@@ -402,6 +413,12 @@ async def delete_shelf(
         UserRole(curr_user["role"]) is UserRole.ADMIN
         or curr_user["id"] == shelf["user_id"]
     ):
+        if shelf["is_default"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Shelf is marked as default and it can't be deleted",
+            )
+
         result = await shelves_collection.delete_one({"_id": shelf_id_object})
         if result.deleted_count == 1:
             return {"message": "Shelf deleted successfully"}

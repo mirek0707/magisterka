@@ -56,7 +56,12 @@ async def create_user(create_user_model: CreateUserModel):
         shelves_names = ["Przeczytane", "Teraz czytam", "Chcę przeczytać"]
         for shelf_name in shelves_names:
             shelf_result = await shelves_collection.insert_one(
-                {"name": shelf_name, "user_id": user_id, "books": list()}
+                {
+                    "name": shelf_name,
+                    "user_id": user_id,
+                    "books": list(),
+                    "is_default": True,
+                }
             )
             if shelf_result.inserted_id:
                 print("Added shelf", shelf_name, "for user", user_id)
@@ -168,7 +173,7 @@ async def delete_user_account(
             shelves_delete_result = await shelves_collection.delete_many(
                 {"user_id": user_id_object}
             )
-            if shelves_delete_result.deleted_count > 1:
+            if shelves_delete_result.deleted_count >= 3:
                 return {
                     "message": "User deleted successfully. User shelves deleted successfully"
                 }

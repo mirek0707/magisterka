@@ -15,6 +15,7 @@ class ShelfModel(BaseModel):
     name: str = Field(...)
     user_id: Optional[PyObjectId] = Field(alias="_id", default=None)
     books: list[str] | None = Field(...)
+    is_default: bool = Field(...)
 
     model_config = ConfigDict(
         from_attributes=True,
