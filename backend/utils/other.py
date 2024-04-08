@@ -30,7 +30,6 @@ def merge_values(value1, value2):
 
 def validate_csv_file(file: UploadFile):
     if not file.content_type in ["text/csv", "application/vnd.ms-excel"]:
-        print(file.content_type)
         return False
 
     required_columns = [
