@@ -17,7 +17,10 @@ def merge_values(value1, value2):
     else:
         set_result = {value1}
 
-    set_result.add(value2)
+    if isinstance(value2, str):
+        set_result.add(value2)
+    elif isinstance(value2, list):
+        set_result.update(value2)
 
     if len(set_result) == 1:
         return set_result.pop()
@@ -26,7 +29,8 @@ def merge_values(value1, value2):
 
 
 def validate_csv_file(file: UploadFile):
-    if not file.content_type == "text/csv":
+    if not file.content_type in ["text/csv", "application/vnd.ms-excel"]:
+        print(file.content_type)
         return False
 
     required_columns = [

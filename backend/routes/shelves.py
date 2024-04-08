@@ -247,7 +247,6 @@ async def create_upload_file(
     shelves_dict = {}
 
     for index, row in df.iterrows():
-        # Podział wartości kolumny "Bookshelves" i "Exclusive Shelf" po przecinku
         bookshelves = [
             shelf.strip().capitalize().replace("-", " ")
             for shelf in row["Bookshelves"].split(",")
@@ -257,7 +256,6 @@ async def create_upload_file(
             for shelf in row["Exclusive Shelf"].split(",")
         ]
 
-        # Dodanie ISBN książki do odpowiednich półek
         for shelf in bookshelves + exclusive_shelves:
             if shelf not in shelves_dict:
                 shelves_dict[shelf] = set()
@@ -312,12 +310,19 @@ async def create_upload_file(
     for index, row in df.iterrows():
         isbn = row["ISBN13"]
         existing_book = await books_collection.find_one({"isbn": isbn})
+        if not isinstance(row["Additional Authors"], float):
+            additional_authors = [
+                author.strip() for author in row["Additional Authors"].split(",")
+            ]
+            author_list = merge_values(additional_authors, row["Author"])
+        else:
+            author_list = row["Author"]
         if not existing_book:
             new_book = BookModel(
                 id=None,
                 isbn=isbn,
                 title=row["Title"],
-                author=row["Author"],
+                author=author_list,
                 pages=row["Number of Pages"],
                 publisher=row["Publisher"],
                 original_title="",
@@ -348,7 +353,7 @@ async def create_upload_file(
                 id=None,
                 isbn=isbn,
                 title=merge_values(existing_book["title"], row["Title"]),
-                author=merge_values(existing_book["author"], row["Author"]),
+                author=merge_values(existing_book["author"], author_list),
                 pages=merge_values(existing_book["pages"], row["Number of Pages"]),
                 publisher=merge_values(existing_book["publisher"], row["Publisher"]),
                 original_title=existing_book["original_title"],
