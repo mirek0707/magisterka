@@ -1,0 +1,13 @@
+{
+    "prettier.configPath": "frontend/.prettierrc",
+    "eslint.options": {
+    "overrideConfigFile": "frontend/.eslintrc.cjs"
+    },
+    "eslint.lintTask.options": "--no-eslintrc .",
+    "eslint.enable": true,
+    "eslint.format.enable": true,
+    "eslint.validate": ["typescript, javascript"],
+    "editor.formatOnPaste": true,
+
+    "editor.formatOnSave": true,
+}
