@@ -1,12 +1,11 @@
+import AppPage from 'app/index'
+import LoginPage from 'auth/login'
+import RegisterPage from 'auth/register'
+import ErrorPage from 'pages/error'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { Routes } from 'routes'
 
 import ProtectedRoute from './private'
-
-import AppPage from '@/app/'
-import LoginPage from '@/auth/login'
-import RegisterPage from '@/auth/register'
-import ErrorPage from '@/pages/error'
-import { Routes } from '@/routes'
 
 export const BrowserRouter = createBrowserRouter([
   {

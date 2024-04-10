@@ -1,7 +1,7 @@
 {
     "prettier.configPath": "frontend/.prettierrc",
     "eslint.options": {
-    "overrideConfigFile": "frontend/.eslintrc.cjs"
+    "overrideConfigFile": "frontend/.eslintrc.json"
     },
     "eslint.lintTask.options": "--no-eslintrc .",
     "eslint.enable": true,
@@ -10,4 +10,8 @@
     "editor.formatOnPaste": true,
 
     "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+    }
+
 }
