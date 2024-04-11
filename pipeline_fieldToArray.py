@@ -13,130 +13,6 @@ except Exception as e:
 db = client["db"]
 pipeline = [
     {
-        "$addFields": {
-            "id": "$id",
-            "title": "$title",
-            "author": "$author",
-            "pages": {
-                "$cond": {
-                    "if": {"$ne": ["$pages", ""]},
-                    "then": {"$convert": {"input": "$pages", "to": "int"}},
-                    "else": None,
-                }
-            },
-            "isbn": "$isbn",
-            "publisher": "$publisher",
-            "original_title": "$original_title",
-            "release_date": {
-                "$cond": {
-                    "if": {"$ne": ["$release_date", ""]},
-                    "then": {
-                        "$dateFromString": {
-                            "dateString": "$release_date",
-                        }
-                    },
-                    "else": None,
-                }
-            },
-            "release_year": {
-                "$cond": {
-                    "if": {"$ne": ["$release_year", ""]},
-                    "then": {"$convert": {"input": "$release_year", "to": "int"}},
-                    "else": None,
-                }
-            },
-            "polish_release_date": {
-                "$cond": {
-                    "if": {"$ne": ["$polish_release_date", ""]},
-                    "then": {
-                        "$dateFromString": {
-                            "dateString": "$polish_release_date",
-                        }
-                    },
-                    "else": None,
-                }
-            },
-            "rating_lc": {
-                "$cond": {
-                    "if": {"$ne": ["$rating_lc", ""]},
-                    "then": {
-                        "$convert": {
-                            "input": {
-                                "$replaceAll": {
-                                    "input": "$rating_lc",
-                                    "find": ",",
-                                    "replacement": ".",
-                                }
-                            },
-                            "to": "double",
-                        }
-                    },
-                    "else": None,
-                }
-            },
-            "ratings_lc_number": {
-                "$cond": {
-                    "if": {"$ne": ["$ratings_lc_number", ""]},
-                    "then": {"$convert": {"input": "$ratings_lc_number", "to": "int"}},
-                    "else": None,
-                }
-            },
-            "rating_tk": {
-                "$cond": {
-                    "if": {"$ne": ["$rating_tk", ""]},
-                    "then": {
-                        "$convert": {
-                            "input": {
-                                "$replaceAll": {
-                                    "input": "$rating_tk",
-                                    "find": ",",
-                                    "replacement": ".",
-                                }
-                            },
-                            "to": "double",
-                        }
-                    },
-                    "else": None,
-                }
-            },
-            "ratings_tk_number": {
-                "$cond": {
-                    "if": {"$ne": ["$ratings_tk_number", ""]},
-                    "then": {"$convert": {"input": "$ratings_tk_number", "to": "int"}},
-                    "else": None,
-                }
-            },
-            "rating_gr": {
-                "$cond": {
-                    "if": {"$ne": ["$rating_gr", ""]},
-                    "then": {
-                        "$convert": {
-                            "input": {
-                                "$replaceAll": {
-                                    "input": "$rating_gr",
-                                    "find": ",",
-                                    "replacement": ".",
-                                }
-                            },
-                            "to": "double",
-                        }
-                    },
-                    "else": None,
-                }
-            },
-            "ratings_gr_number": {
-                "$cond": {
-                    "if": {"$ne": ["$ratings_gr_number", ""]},
-                    "then": {"$convert": {"input": "$ratings_gr_number", "to": "int"}},
-                    "else": None,
-                }
-            },
-            "img_source": "$img_source",
-            "description": "$description",
-            "genre": "$genre",
-        }
-    },
-    {
         "$group": {
             "_id": "$isbn",
             "title": {
@@ -372,6 +248,34 @@ pipeline = [
                 }
             },
             "id": {"$first": "$_id"},
+            "rating": {
+                "$push": {
+                    "$switch": {
+                        "branches": [
+                            {"case": {"$eq": ["$rating", ""]}, "then": "$$REMOVE"},
+                            {"case": {"$isArray": "$rating"}, "then": "$rating"},
+                        ],
+                        "default": ["$rating"],
+                    }
+                }
+            },
+            "ratings_number": {
+                "$push": {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": {"$eq": ["$ratings_number", ""]},
+                                "then": "$$REMOVE",
+                            },
+                            {
+                                "case": {"$isArray": "$ratings_number"},
+                                "then": "$ratings_number",
+                            },
+                        ],
+                        "default": ["$ratings_number"],
+                    }
+                }
+            },
         }
     },
     {
@@ -497,6 +401,20 @@ pipeline = [
                 }
             },
             "id": "$id",
+            "rating": {
+                "$reduce": {
+                    "input": "$rating",
+                    "initialValue": [],
+                    "in": {"$setUnion": ["$$value", "$$this"]},
+                }
+            },
+            "ratings_number": {
+                "$reduce": {
+                    "input": "$ratings_number",
+                    "initialValue": [],
+                    "in": {"$setUnion": ["$$value", "$$this"]},
+                }
+            },
         }
     },
     {
@@ -622,147 +540,35 @@ pipeline = [
                 }
             },
             "id": "$id",
-        }
-    },
-    {
-        "$redact": {
-            "$cond": {
-                "if": {
-                    "$or": [
-                        {"$gt": [{"$size": "$rating_lc"}, 1]},
-                        {"$gt": [{"$size": "$rating_gr"}, 1]},
-                        {"$gt": [{"$size": "$rating_tk"}, 1]},
-                        {"$gt": [{"$size": "$ratings_lc_number"}, 1]},
-                        {"$gt": [{"$size": "$ratings_gr_number"}, 1]},
-                        {"$gt": [{"$size": "$ratings_tk_number"}, 1]},
-                        {"$gt": [{"$size": "$title"}, 4]},
-                        {"$eq": [{"$size": "$title"}, 0]},
-                        {"$gt": [{"$size": "$pages"}, 4]},
-                        {"$gt": [{"$size": "$original_title"}, 4]},
-                        {"$gt": [{"$size": "$release_year"}, 4]},
-                        {"$gt": [{"$size": "$release_date"}, 4]},
-                        {"$gt": [{"$size": "$polish_release_date"}, 4]},
-                        {"$gt": [{"$size": "$description"}, 4]},
-                    ]
-                },
-                "then": "$$PRUNE",
-                "else": "$$DESCEND",
-            }
+            "rating": {
+                "$filter": {
+                    "input": "$rating",
+                    "as": "d",
+                    "cond": {"$ne": ["$$d", None]},
+                }
+            },
+            "ratings_number": {
+                "$filter": {
+                    "input": "$ratings_number",
+                    "as": "d",
+                    "cond": {"$ne": ["$$d", None]},
+                }
+            },
         }
     },
     {
         "$replaceRoot": {
             "newRoot": {
                 "_id": "$id",
-                "title": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$title"}, 1]},
-                                "then": {"$arrayElemAt": ["$title", 0]},
-                            },
-                            {"case": {"$eq": [{"$size": "$title"}, 0]}, "then": ""},
-                        ],
-                        "default": "$title",
-                    }
-                },
-                "author": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$author"}, 1]},
-                                "then": {"$arrayElemAt": ["$author", 0]},
-                            },
-                            {"case": {"$eq": [{"$size": "$author"}, 0]}, "then": ""},
-                        ],
-                        "default": "$author",
-                    }
-                },
+                "title": "$title",
+                "author": "$author",
                 "isbn": "$_id",
-                "pages": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$pages"}, 1]},
-                                "then": {"$arrayElemAt": ["$pages", 0]},
-                            },
-                            {"case": {"$eq": [{"$size": "$pages"}, 0]}, "then": ""},
-                        ],
-                        "default": "$pages",
-                    }
-                },
-                "publisher": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$publisher"}, 1]},
-                                "then": {"$arrayElemAt": ["$publisher", 0]},
-                            },
-                            {"case": {"$eq": [{"$size": "$publisher"}, 0]}, "then": ""},
-                        ],
-                        "default": "$publisher",
-                    }
-                },
-                "original_title": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$original_title"}, 1]},
-                                "then": {"$arrayElemAt": ["$original_title", 0]},
-                            },
-                            {
-                                "case": {"$eq": [{"$size": "$original_title"}, 0]},
-                                "then": "",
-                            },
-                        ],
-                        "default": "$original_title",
-                    }
-                },
-                "release_date": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$release_date"}, 1]},
-                                "then": {"$arrayElemAt": ["$release_date", 0]},
-                            },
-                            {
-                                "case": {"$eq": [{"$size": "$release_date"}, 0]},
-                                "then": "",
-                            },
-                        ],
-                        "default": "$release_date",
-                    }
-                },
-                "release_year": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$release_year"}, 1]},
-                                "then": {"$arrayElemAt": ["$release_year", 0]},
-                            },
-                            {
-                                "case": {"$eq": [{"$size": "$release_year"}, 0]},
-                                "then": "",
-                            },
-                        ],
-                        "default": "$release_year",
-                    }
-                },
-                "polish_release_date": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$polish_release_date"}, 1]},
-                                "then": {"$arrayElemAt": ["$polish_release_date", 0]},
-                            },
-                            {
-                                "case": {"$eq": [{"$size": "$polish_release_date"}, 0]},
-                                "then": "",
-                            },
-                        ],
-                        "default": "$polish_release_date",
-                    }
-                },
+                "pages": "$pages",
+                "publisher": "$publisher",
+                "original_title": "$original_title",
+                "release_date": "$release_date",
+                "release_year": "$release_year",
+                "polish_release_date": "$polish_release_date",
                 "rating_lc": {
                     "$switch": {
                         "branches": [
@@ -770,7 +576,10 @@ pipeline = [
                                 "case": {"$eq": [{"$size": "$rating_lc"}, 1]},
                                 "then": {"$arrayElemAt": ["$rating_lc", 0]},
                             },
-                            {"case": {"$eq": [{"$size": "$rating_lc"}, 0]}, "then": ""},
+                            {
+                                "case": {"$eq": [{"$size": "$rating_lc"}, 0]},
+                                "then": None,
+                            },
                         ],
                         "default": "$rating_lc",
                     }
@@ -784,7 +593,7 @@ pipeline = [
                             },
                             {
                                 "case": {"$eq": [{"$size": "$ratings_lc_number"}, 0]},
-                                "then": "",
+                                "then": None,
                             },
                         ],
                         "default": "$ratings_lc_number",
@@ -797,7 +606,10 @@ pipeline = [
                                 "case": {"$eq": [{"$size": "$rating_tk"}, 1]},
                                 "then": {"$arrayElemAt": ["$rating_tk", 0]},
                             },
-                            {"case": {"$eq": [{"$size": "$rating_tk"}, 0]}, "then": ""},
+                            {
+                                "case": {"$eq": [{"$size": "$rating_tk"}, 0]},
+                                "then": None,
+                            },
                         ],
                         "default": "$rating_tk",
                     }
@@ -811,7 +623,7 @@ pipeline = [
                             },
                             {
                                 "case": {"$eq": [{"$size": "$ratings_tk_number"}, 0]},
-                                "then": "",
+                                "then": None,
                             },
                         ],
                         "default": "$ratings_tk_number",
@@ -824,7 +636,10 @@ pipeline = [
                                 "case": {"$eq": [{"$size": "$rating_gr"}, 1]},
                                 "then": {"$arrayElemAt": ["$rating_gr", 0]},
                             },
-                            {"case": {"$eq": [{"$size": "$rating_gr"}, 0]}, "then": ""},
+                            {
+                                "case": {"$eq": [{"$size": "$rating_gr"}, 0]},
+                                "then": None,
+                            },
                         ],
                         "default": "$rating_gr",
                     }
@@ -838,24 +653,13 @@ pipeline = [
                             },
                             {
                                 "case": {"$eq": [{"$size": "$ratings_gr_number"}, 0]},
-                                "then": "",
+                                "then": None,
                             },
                         ],
                         "default": "$ratings_gr_number",
                     }
                 },
-                "img_src": {
-                    "$switch": {
-                        "branches": [
-                            {
-                                "case": {"$eq": [{"$size": "$img_src"}, 1]},
-                                "then": {"$arrayElemAt": ["$img_src", 0]},
-                            },
-                            {"case": {"$eq": [{"$size": "$img_src"}, 0]}, "then": ""},
-                        ],
-                        "default": "$img_src",
-                    }
-                },
+                "img_src": "$img_src",
                 "description": {
                     "$switch": {
                         "branches": [
@@ -883,112 +687,36 @@ pipeline = [
                         "default": "$genre",
                     }
                 },
+                "rating": {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": {"$eq": [{"$size": "$rating"}, 1]},
+                                "then": {"$arrayElemAt": ["$rating", 0]},
+                            },
+                            {"case": {"$eq": [{"$size": "$rating"}, 0]}, "then": None},
+                        ],
+                        "default": "$rating",
+                    }
+                },
+                "ratings_number": {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": {"$eq": [{"$size": "$ratings_number"}, 1]},
+                                "then": {"$arrayElemAt": ["$ratings_number", 0]},
+                            },
+                            {
+                                "case": {"$eq": [{"$size": "$ratings_number"}, 0]},
+                                "then": None,
+                            },
+                        ],
+                        "default": "$ratings_number",
+                    }
+                },
             }
         }
     },
-    {
-        "$addFields": {
-            "ratings_number": {
-                "$add": [
-                    {
-                        "$cond": {
-                            "if": {"$ne": ["$ratings_gr_number", ""]},
-                            "then": {"$toInt": "$ratings_gr_number"},
-                            "else": 0,
-                        }
-                    },
-                    {
-                        "$cond": {
-                            "if": {"$ne": ["$ratings_lc_number", ""]},
-                            "then": {"$toInt": "$ratings_lc_number"},
-                            "else": 0,
-                        }
-                    },
-                    {
-                        "$cond": {
-                            "if": {"$ne": ["$ratings_tk_number", ""]},
-                            "then": {"$toInt": "$ratings_tk_number"},
-                            "else": 0,
-                        }
-                    },
-                ]
-            }
-        }
-    },
-    {
-        "$addFields": {
-            "rating": {
-                "$divide": [
-                    {
-                        "$add": [
-                            {
-                                "$multiply": [
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$ratings_lc_number", ""]},
-                                            "then": {"$toInt": "$ratings_lc_number"},
-                                            "else": 0,
-                                        }
-                                    },
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$rating_lc", ""]},
-                                            "then": {"$toDouble": "$rating_lc"},
-                                            "else": 0,
-                                        }
-                                    },
-                                    0.5,
-                                ]
-                            },
-                            {
-                                "$multiply": [
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$ratings_tk_number", ""]},
-                                            "then": {"$toInt": "$ratings_tk_number"},
-                                            "else": 0,
-                                        }
-                                    },
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$rating_tk", ""]},
-                                            "then": {"$toDouble": "$rating_tk"},
-                                            "else": 0,
-                                        }
-                                    },
-                                ]
-                            },
-                            {
-                                "$multiply": [
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$ratings_gr_number", ""]},
-                                            "then": {"$toInt": "$ratings_gr_number"},
-                                            "else": 0,
-                                        }
-                                    },
-                                    {
-                                        "$cond": {
-                                            "if": {"$ne": ["$rating_gr", ""]},
-                                            "then": {"$toDouble": "$rating_gr"},
-                                            "else": 0,
-                                        }
-                                    },
-                                ]
-                            },
-                        ]
-                    },
-                    {
-                        "$cond": {
-                            "if": {"$eq": ["$ratings_number", 0]},
-                            "then": 1,
-                            "else": "$ratings_number",
-                        }
-                    },
-                ]
-            }
-        }
-    },
-    {"$out": "books"},
+    {"$out": "books2"},
 ]
 result = db["books"].aggregate(pipeline, allowDiskUse=True)
