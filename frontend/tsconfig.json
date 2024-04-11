@@ -22,7 +22,12 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     
-    "baseUrl": "src",
+    "baseUrl": "./",
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },
     "types": [
       "node"
     ]

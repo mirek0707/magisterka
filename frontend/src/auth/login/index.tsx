@@ -1,5 +1,4 @@
-import React from 'react'
-
+import * as React from 'react'
 const LoginPage: React.FC = () => {
   return (
     <>

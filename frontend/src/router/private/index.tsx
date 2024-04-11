@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Navigate } from 'react-router-dom'
-import { Routes } from 'routes'
+import { Routes } from 'src/routes'
 
 type Props = {
   children: React.ReactElement

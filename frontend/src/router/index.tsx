@@ -1,9 +1,9 @@
-import AppPage from 'app/index'
-import LoginPage from 'auth/login'
-import RegisterPage from 'auth/register'
-import ErrorPage from 'pages/error'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { Routes } from 'routes'
+import AppPage from 'src/application'
+import LoginPage from 'src/auth/login'
+import RegisterPage from 'src/auth/register'
+import ErrorPage from 'src/pages/error'
+import { Routes } from 'src/routes'
 
 import ProtectedRoute from './private'
 
