@@ -21,5 +21,12 @@ class ShelfModel(BaseModel):
         from_attributes=True,
         populate_by_name=True,
         arbitrary_types_allowed=True,
-        json_schema_extra={"example": {}},
+        json_schema_extra={
+            "example": {
+                "_id": "6604317bf130179fad967189",
+                "name": "Przeczytane",
+                "books": ["9788367133210", "9788379984817"],
+                "is_default": True,
+            }
+        },
     )

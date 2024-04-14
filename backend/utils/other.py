@@ -17,15 +17,12 @@ def merge_values(value1, value2):
     else:
         set_result = {value1}
 
-    if isinstance(value2, str):
-        set_result.add(value2)
-    elif isinstance(value2, list):
+    if isinstance(value2, list):
         set_result.update(value2)
-
-    if len(set_result) == 1:
-        return set_result.pop()
     else:
-        return list(set_result)
+        set_result.add(value2)
+
+    return list(set_result)
 
 
 def validate_csv_file(file: UploadFile):

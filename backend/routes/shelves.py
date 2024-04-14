@@ -138,14 +138,14 @@ async def run_lc_shelves_spider(
             new_book = BookModel(
                 id=None,
                 isbn=isbn,
-                title=book["title"],
-                author=book["author"],
-                pages=book["pages"],
-                publisher=book["publisher"],
-                original_title=book["original_title"],
-                release_date=book["release_date"],
-                release_year=None,
-                polish_release_date=book["polish_release_date"],
+                title=[book["title"]],
+                author=[book["author"]],
+                pages=[book["pages"]],
+                publisher=[book["publisher"]],
+                original_title=[book["original_title"]],
+                release_date=[book["release_date"]],
+                release_year=[],
+                polish_release_date=[book["polish_release_date"]],
                 rating_lc=book["rating_lc"],
                 ratings_lc_number=book["ratings_lc_number"],
                 rating_gr=None,
@@ -156,7 +156,7 @@ async def run_lc_shelves_spider(
                 ratings_number=book["ratings_lc_number"],
                 genre=book["genre"],
                 description=book["description"],
-                img_src=book["img_src"],
+                img_src=[book["img_src"]],
             )
             result = await books_collection.insert_one(
                 new_book.model_dump(exclude=["id"])
@@ -246,7 +246,7 @@ async def create_upload_file(
 
     shelves_dict = {}
 
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         bookshelves = [
             shelf.strip().capitalize().replace("-", " ")
             for shelf in row["Bookshelves"].split(",")
@@ -307,7 +307,7 @@ async def create_upload_file(
 
     print("\n")
 
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         isbn = row["ISBN13"]
         existing_book = await books_collection.find_one({"isbn": isbn})
         if not isinstance(row["Additional Authors"], float):
@@ -316,19 +316,19 @@ async def create_upload_file(
             ]
             author_list = merge_values(additional_authors, row["Author"])
         else:
-            author_list = row["Author"]
+            author_list = [row["Author"]]
         if not existing_book:
             new_book = BookModel(
                 id=None,
                 isbn=isbn,
-                title=row["Title"],
+                title=[row["Title"]],
                 author=author_list,
-                pages=row["Number of Pages"],
-                publisher=row["Publisher"],
-                original_title="",
-                release_date=None,
-                release_year=row["Year Published"],
-                polish_release_date=None,
+                pages=[row["Number of Pages"]],
+                publisher=[row["Publisher"]],
+                original_title=[],
+                release_date=[],
+                release_year=[row["Year Published"]],
+                polish_release_date=[],
                 rating_lc=None,
                 ratings_lc_number=None,
                 rating_gr=None,
@@ -339,7 +339,7 @@ async def create_upload_file(
                 ratings_number=None,
                 genre="",
                 description="",
-                img_src="",
+                img_src=[],
             )
             result = await books_collection.insert_one(
                 new_book.model_dump(exclude=["id"])
