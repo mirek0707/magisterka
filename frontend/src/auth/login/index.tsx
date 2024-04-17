@@ -1,10 +1,6 @@
 import * as React from 'react'
 const LoginPage: React.FC = () => {
-  return (
-    <>
-      <div>Login</div>
-    </>
-  )
+  return <>Login</>
 }
 
 export default LoginPage

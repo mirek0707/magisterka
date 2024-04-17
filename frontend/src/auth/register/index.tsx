@@ -1,10 +1,6 @@
 import * as React from 'react'
 const RegisterPage: React.FC = () => {
-  return (
-    <>
-      <div>Register</div>
-    </>
-  )
+  return <>Register</>
 }
 
 export default RegisterPage

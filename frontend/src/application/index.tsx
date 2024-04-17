@@ -1,10 +1,7 @@
 import * as React from 'react'
+
 const AppPage: React.FC = () => {
-  return (
-    <>
-      <div>App</div>
-    </>
-  )
+  return <>App</>
 }
 
 export default AppPage
