@@ -7,7 +7,7 @@ type Props = {
 }
 
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
-  const isAuthenticated = false
+  const isAuthenticated = true
 
   if (isAuthenticated) return children
 
