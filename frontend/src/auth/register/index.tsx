@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
@@ -7,17 +8,30 @@ import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import * as React from 'react'
+import { useForm } from 'react-hook-form'
 import { Routes } from 'src/routes'
 
+import { RegisterFormData, RegisterFormSchema } from '../schema'
+
 export default function Register() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    formState: { errors, touchedFields },
+  } = useForm<RegisterFormData>({
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
+    resolver: zodResolver(RegisterFormSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  })
+  const onSubmit = (data: RegisterFormData) => {
+    console.log(data)
   }
 
   return (
@@ -44,17 +58,24 @@ export default function Register() {
         <Typography component="h1" variant="h5">
           Rejestracja
         </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box
+          component="form"
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{ mt: 3 }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 autoComplete="username"
-                name="username"
                 required
                 fullWidth
                 id="username"
                 label="Nazwa użytkownika"
                 autoFocus
+                {...register('username')}
+                error={!!errors.username && touchedFields.username}
+                helperText={errors.username?.message}
               />
             </Grid>
             <Grid item xs={12}>
@@ -63,19 +84,41 @@ export default function Register() {
                 fullWidth
                 id="email"
                 label="Adres e-mail"
-                name="email"
                 autoComplete="email"
+                {...register('email')}
+                error={!!errors.email && touchedFields.email}
+                helperText={errors.email?.message}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 required
                 fullWidth
-                name="password"
                 label="Hasło"
                 type="password"
                 id="password"
                 autoComplete="new-password"
+                {...register('password')}
+                error={!!errors.password && touchedFields.password}
+                helperText={errors.password?.message}
+                onChange={() => {
+                  resetField('confirmPassword')
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                label="Potwierdź hasło"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
+                {...register('confirmPassword')}
+                error={
+                  !!errors.confirmPassword && touchedFields.confirmPassword
+                }
+                helperText={errors.confirmPassword?.message}
               />
             </Grid>
           </Grid>
