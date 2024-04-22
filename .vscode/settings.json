@@ -1,5 +1,7 @@
 {
     "prettier.configPath": "frontend/.prettierrc",
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "eslint.options": {
     "overrideConfigFile": "frontend/.eslintrc.json"
     },
