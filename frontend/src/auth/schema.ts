@@ -7,7 +7,7 @@ import {
 import { z } from 'zod'
 
 export const LoginFormSchema = z.object({
-  email: GenericEmailConstraint,
+  username: GenericUsernameConstraint,
   password: z.string({ required_error: ErrorMessages.required }),
 })
 

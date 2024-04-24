@@ -125,6 +125,17 @@ async def get_user_info(_: user_dependency, user_id: str):
     return GetUserModel.model_validate(user)
 
 
+@router.get(
+    "",
+    response_description="Get user data from token",
+)
+async def get_user_info_from_token(
+    _: user_dependency, curr_user: current_user_depedency
+):
+    username, id, role = curr_user.values()
+    return {"username": username, "id": str(id), "role": role}
+
+
 @router.put("/edit", response_description="Edit a user")
 async def edit_user(
     _: user_dependency, curr_user: current_user_depedency, edit_user: EditUserModel

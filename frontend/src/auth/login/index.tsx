@@ -8,12 +8,22 @@ import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { postLogin } from 'src/auth/api'
+import { useAuthContext } from 'src/auth/context'
+import { useIsAuthenticated } from 'src/auth/hooks'
 import { Routes } from 'src/routes'
 
 import { LoginFormData, LoginFormSchema } from '../schema'
 
 export default function Login() {
+  const { signIn } = useAuthContext()
+  const isAuthenticated = useIsAuthenticated()
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const {
     register,
     handleSubmit,
@@ -23,13 +33,27 @@ export default function Login() {
     reValidateMode: 'onBlur',
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   })
-  const onSubmit = (data: LoginFormData) => {
-    console.log(data)
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await postLogin(data)
+      signIn({
+        token: response.access_token,
+      })
+    } catch (e) {
+      alert('Login failed')
+    }
   }
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      const redirectUrl = location.state?.from || Routes.HomeUrl()
+      navigate(redirectUrl, { replace: true })
+    }
+  }, [isAuthenticated])
 
   return (
     <Container
@@ -62,16 +86,15 @@ export default function Login() {
           sx={{ mt: 1 }}
         >
           <TextField
-            margin="normal"
+            autoComplete="username"
             required
             fullWidth
-            id="email"
-            label="Adres e-mail"
-            autoComplete="email"
+            id="username"
+            label="Nazwa użytkownika"
             autoFocus
-            {...register('email')}
-            error={!!errors.email && touchedFields.email}
-            helperText={errors.email?.message}
+            {...register('username')}
+            error={!!errors.username && touchedFields.username}
+            helperText={errors.username?.message}
           />
           <TextField
             margin="normal"
