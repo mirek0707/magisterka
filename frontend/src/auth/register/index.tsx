@@ -9,11 +9,14 @@ import Link from '@mui/material/Link'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { postRegister } from 'src/auth/api'
 import { Routes } from 'src/routes'
 
 import { RegisterFormData, RegisterFormSchema } from '../schema'
 
 export default function Register() {
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -30,8 +33,17 @@ export default function Register() {
       confirmPassword: '',
     },
   })
-  const onSubmit = (data: RegisterFormData) => {
-    console.log(data)
+  const onSubmit = async (data: RegisterFormData) => {
+    try {
+      const { username, email, password } = data
+      const role = 'USER'
+
+      await postRegister({ username, email, password, role })
+      alert('Registration successful')
+      navigate(Routes.LoginUrl(), { replace: true })
+    } catch (e) {
+      alert('Registration failed')
+    }
   }
 
   return (
