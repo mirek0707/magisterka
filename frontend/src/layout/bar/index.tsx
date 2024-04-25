@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography'
 import * as React from 'react'
 import { drawerWidth } from 'src/layout/drawer'
 
+import UserMenu from './userMenu'
+
 interface LayoutBarProps extends MuiAppBarProps {
   open?: boolean
   handleDrawerOpen: () => void
@@ -28,9 +30,10 @@ const LayoutBar: React.FC<LayoutBarProps> = ({ open, handleDrawerOpen }) => {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h4" noWrap component="div">
+        <Typography variant="h4" noWrap component="div" sx={{ flexGrow: 1 }}>
           NAZWA APLIKACJI
         </Typography>
+        <UserMenu />
       </Toolbar>
     </AppBar>
   )

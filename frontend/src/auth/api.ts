@@ -1,4 +1,4 @@
-import qs from 'qs'
+import * as qs from 'qs'
 import { post } from 'src/api'
 
 import { LoginFormData } from './schema'
