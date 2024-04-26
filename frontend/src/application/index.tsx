@@ -1,112 +1,62 @@
 import * as React from 'react'
-import BooksCarousel from 'src/components/carousel'
+import { useBooksPerPage } from 'src/books/rquery'
+import { Book } from 'src/books/types'
+import { CarouselItemProps } from 'src/components/carousel/types'
 
-const BooksMock = [
-  {
-    title: 'title1',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100856/1123909-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title2',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5101000/5101903/1129249-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title3',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100977/1129575-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title4',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5077000/5077539/1114281-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title5',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100856/1123909-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title6',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5101000/5101903/1129249-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title7',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5107000/5107048/1134280-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title8',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5098000/5098037/1118881-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title1',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100856/1123909-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title2',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5101000/5101903/1129249-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title3',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100977/1129575-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title4',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5077000/5077539/1114281-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title5',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5100000/5100856/1123909-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title6',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5101000/5101903/1129249-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title7',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5107000/5107048/1134280-352x500.jpg',
-    author: 'string',
-  },
-  {
-    title: 'title8',
-    img_src:
-      'https://s.lubimyczytac.pl/upload/books/5098000/5098037/1118881-352x500.jpg',
-    author: 'string',
-  },
-]
+const LazyBooksCarousel = React.lazy(() => import('src/components/carousel'))
 
 const AppPage: React.FC = () => {
+  const latestBooks = useBooksPerPage({
+    page: 1,
+    limit: 32,
+    sort_by: 'release_date',
+    order: -1,
+  })
+  const bestBooks = useBooksPerPage({
+    page: 1,
+    limit: 32,
+    sort_by: 'ratings_number',
+    order: -1,
+  })
+  const convertBookToCarouselItem = (book: Book): CarouselItemProps => {
+    return {
+      title: book.title[0],
+      img_src:
+        book.img_src && book.img_src[0]
+          ? book.img_src[0]
+          : 'https://ih1.redbubble.net/image.1893341687.8294/fposter,small,wall_texture,product,750x1000.jpg',
+      author: book.author[0],
+    }
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-100 space-y-5">
-      <BooksCarousel title={'Ostatnio dodane'} items={BooksMock} />
-      <BooksCarousel title={'Najlepiej oceniane'} items={BooksMock} />
+      <React.Suspense fallback={<Loading />}>
+        {latestBooks.data ? (
+          <LazyBooksCarousel
+            title={'Najnowsze książki'}
+            items={latestBooks.data.map(convertBookToCarouselItem)}
+          />
+        ) : (
+          <Loading />
+        )}
+      </React.Suspense>
+      <React.Suspense fallback={<Loading />}>
+        {bestBooks.data ? (
+          <LazyBooksCarousel
+            title={'Najpopularniejsze książki'}
+            items={bestBooks.data.map(convertBookToCarouselItem)}
+          />
+        ) : (
+          <Loading />
+        )}
+      </React.Suspense>
     </div>
   )
+}
+
+function Loading() {
+  return <h2>🌀 Ładowanie...</h2>
 }
 
 export default AppPage
