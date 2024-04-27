@@ -12,22 +12,56 @@ import { CarouselItemProps, BooksCarouselProps } from './types'
 
 const BooksCarouselItem: React.FC<BooksCarouselProps> = ({ items }) => {
   return (
-    <Grid container direction="row" spacing={1}>
+    <Grid container direction="row" spacing={{ lg: 1, xl: 2 }}>
       {items.map((item: CarouselItemProps, index: number) => (
         <Grid item xs={12 / 8} key={index} className="p-1">
-          <Card className="text-left">
-            <CardActionArea>
+          <Card
+            className="h-full text-left relative"
+            sx={{ ':hover': { boxShadow: 10 } }}
+          >
+            <CardActionArea className="h-full">
               <CardMedia
                 component="img"
-                height="100"
+                className="h-3/4"
+                sx={{ objectFit: 'cover' }}
                 image={item.img_src}
                 alt="book cover"
               />
-              <CardContent>
-                <Typography variant="h5">{item.title}</Typography>
-                <Typography variant="subtitle1" sx={{ fontStyle: 'italic' }}>
-                  {item.author}
-                </Typography>
+              <CardContent sx={{ p: 0 }} className="h-1/4">
+                <Grid
+                  className="h-full p-2"
+                  container
+                  direction="column"
+                  justifyContent="center"
+                >
+                  <Grid item>
+                    <Typography
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: '1',
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                      variant="subtitle1"
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: '1',
+                        WebkitBoxOrient: 'vertical',
+                        fontStyle: 'italic',
+                      }}
+                      variant="subtitle2"
+                    >
+                      {item.author}
+                    </Typography>
+                  </Grid>
+                </Grid>
               </CardContent>
             </CardActionArea>
           </Card>
