@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@mui/material'
 import * as React from 'react'
+import { Routes } from 'src/routes'
 
 import { CarouselItemProps, BooksCarouselProps } from './types'
 
@@ -19,7 +20,7 @@ const BooksCarouselItem: React.FC<BooksCarouselProps> = ({ items }) => {
             className="h-full text-left relative"
             sx={{ ':hover': { boxShadow: 10 } }}
           >
-            <CardActionArea className="h-full">
+            <CardActionArea className="h-full" href={Routes.BookUrl(item.isbn)}>
               <CardMedia
                 component="img"
                 className="h-3/4"

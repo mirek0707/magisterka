@@ -50,7 +50,7 @@ export default function Login() {
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      const redirectUrl = location.state?.from || Routes.HomeUrl()
+      const redirectUrl = location.state?.from || Routes.AppUrl()
       navigate(redirectUrl, { replace: true })
     }
   }, [isAuthenticated])

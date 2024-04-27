@@ -1,6 +1,4 @@
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Routes } from 'src/routes'
 import queryClient from 'src/rquery/client'
 import { createContext } from 'src/utils/context'
 
@@ -29,13 +27,11 @@ type Props = {
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
   const [data, setData] = React.useState<AuthData>()
-  const navigate = useNavigate()
 
   const signIn = async (data: AuthData) => {
     queryClient.clear() // clear all query caches to avoid flash of other user's data
     setPersistentAuthData(data)
     setData(data)
-    navigate(Routes.AppUrl())
   }
 
   const signOut = () => {

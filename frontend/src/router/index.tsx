@@ -3,6 +3,7 @@ import AppPage from 'src/application'
 import LoginPage from 'src/auth/login'
 import RegisterPage from 'src/auth/register'
 import Layout from 'src/layout'
+import BookPage from 'src/pages/book'
 import BooksPage from 'src/pages/books'
 import ErrorPage from 'src/pages/error'
 import LibraryPage from 'src/pages/library'
@@ -58,6 +59,14 @@ export const BrowserRouter = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <LibraryPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: Routes.BookUrl(':isbn'),
+            element: (
+              <ProtectedRoute>
+                <BookPage />
               </ProtectedRoute>
             ),
           },

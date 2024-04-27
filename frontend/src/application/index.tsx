@@ -26,6 +26,7 @@ const AppPage: React.FC = () => {
           ? book.img_src[0]
           : 'https://ih1.redbubble.net/image.1893341687.8294/fposter,small,wall_texture,product,750x1000.jpg',
       author: book.author[0],
+      isbn: book.isbn,
     }
   }
 
