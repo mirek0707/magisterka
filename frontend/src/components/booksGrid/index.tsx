@@ -27,8 +27,8 @@ const BooksGrid: React.FC<BooksGridProps> = ({ page, booksPerPage }) => {
   return (
     <Grid container spacing={1} alignItems="">
       {books.status === 'success' ? (
-        books.data.map((item) => (
-          <Grid item xs={12 / 10}>
+        books.data.map((item, index) => (
+          <Grid item xs={12 / 10} key={index}>
             <BookCard {...convertBookToCarouselItem(item)} />
           </Grid>
         ))

@@ -33,3 +33,7 @@ export type BooksPerPageReq = {
   publisher?: string | null
   genre?: string | null
 }
+
+export type BookCount = {
+  count: number
+}
