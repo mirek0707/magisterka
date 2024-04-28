@@ -23,10 +23,10 @@ export type Book = {
 }
 
 export type BooksPerPageReq = {
-  page: number
-  limit: number
-  sort_by: string
-  order: number
+  page?: number
+  limit?: number
+  sort_by?: string
+  order?: number
   release_year_from?: number | null
   release_year_to?: number | null
   author?: string | null

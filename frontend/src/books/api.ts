@@ -8,3 +8,5 @@ export const getBooksPerPagePath = (data: BooksPerPageReq) =>
   `${API_ROOT_PATH}?${qs.stringify(data)}`
 
 export const getBookPath = (isbn: string) => `${API_ROOT_PATH}/${isbn}`
+
+export const getBooksCount = () => `${API_ROOT_PATH}/count`

@@ -1,7 +1,7 @@
 import { get } from 'src/api'
 import { useReactQuery } from 'src/rquery'
 
-import { getBooksPerPagePath, getBookPath } from './api'
+import { getBooksPerPagePath, getBookPath, getBooksCount } from './api'
 import { BooksPerPageReq, Book } from './types'
 
 export const useBooksPerPage = (data: BooksPerPageReq) =>
@@ -9,3 +9,5 @@ export const useBooksPerPage = (data: BooksPerPageReq) =>
 
 export const useBook = (isbn: string) =>
   useReactQuery<Book>(get, getBookPath(isbn))
+
+export const useBookCount = () => useReactQuery<number>(get, getBooksCount())

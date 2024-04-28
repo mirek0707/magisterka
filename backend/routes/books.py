@@ -23,6 +23,12 @@ router = APIRouter(
 )
 
 
+@router.get("/count", response_description="Get number of books")
+async def get_books_count(_: user_dependency):
+    count = await books_collection.count_documents({})
+    return {"count": count}
+
+
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
 async def get_one_book(isbn: str, _: user_dependency):
     try:
