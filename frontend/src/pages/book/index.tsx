@@ -14,6 +14,7 @@ import { Carousel } from 'react-responsive-carousel'
 import { useParams } from 'react-router-dom'
 import { useBook } from 'src/books/rquery'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import { Loading } from 'src/components/loading'
 
 import ErrorPage from '../error'
 const BookPage: React.FC = () => {
@@ -24,7 +25,7 @@ const BookPage: React.FC = () => {
     return <ErrorPage />
   }
   if (book.status === 'loading') {
-    return <h2>🌀 Ładowanie...</h2>
+    return <Loading />
   }
   return (
     <Grid container spacing={2}>
