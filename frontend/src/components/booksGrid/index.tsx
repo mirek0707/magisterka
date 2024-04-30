@@ -16,30 +16,33 @@ import BookCard from '../carousel/card'
 import { Loading } from '../loading'
 
 interface BooksGridProps {
-  page: number
+  prevPage: number
   booksPerPage: number
   prevGenre: string | null
 }
 
 const BooksGrid: React.FC<BooksGridProps> = ({
-  page,
+  prevPage,
   booksPerPage,
   prevGenre,
 }) => {
   const [genre, setGenre] = React.useState<string | null>(prevGenre)
+  const [page, setPage] = React.useState<number>(prevPage)
 
   const books = useBooksPerPage({
-    page,
+    page: prevPage,
     limit: booksPerPage,
     genre,
   })
   const genres = useBooksGenres()
 
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [, setSearchParams] = useSearchParams()
 
   React.useEffect(() => {
-    searchParams.set('genre', genre as string)
-    setSearchParams(searchParams)
+    setSearchParams({
+      genre: genre as string,
+      page: page.toString() as string,
+    })
   }, [genre])
 
   return (
@@ -55,6 +58,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
             sx={{ width: 200 }}
             onChange={(event) => {
               setGenre(event.target.value as string)
+              setPage(1)
             }}
           >
             <MenuItem value={''}>

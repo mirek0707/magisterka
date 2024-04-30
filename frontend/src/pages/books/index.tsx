@@ -1,18 +1,23 @@
-import { Box, CssBaseline, Divider, PaginationItem, Stack } from '@mui/material'
+import { Box, CssBaseline, Divider, Stack } from '@mui/material'
 import Pagination from '@mui/material/Pagination'
 import * as React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useBooksCount } from 'src/books/rquery'
 import BooksGrid from 'src/components/booksGrid'
 
 const BooksPage: React.FC = () => {
   const location = useLocation()
+  const navigate = useNavigate()
   const query = new URLSearchParams(location.search)
   const page = parseInt(query.get('page') || '1', 10)
   const genre = query.get('genre') || ''
 
   const bookCountObject = useBooksCount()
   const booksPerPage = 60
+  const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    query.set('page', value.toString() as string)
+    navigate(`/app/books?${query}`)
+  }
   return (
     <Box
       display="flex"
@@ -28,22 +33,20 @@ const BooksPage: React.FC = () => {
           maxWidth: '1600px',
         }}
       >
-        <BooksGrid page={page} booksPerPage={booksPerPage} prevGenre={genre} />
+        <BooksGrid
+          prevPage={page}
+          booksPerPage={booksPerPage}
+          prevGenre={genre}
+        />
         <Divider sx={{ color: 'success.dark', m: 2 }} />
         {bookCountObject.status === 'success' ? (
           <Stack spacing={2}>
             <Pagination
+              onChange={handleChange}
               count={Math.ceil(bookCountObject.data.count / booksPerPage)}
               variant="outlined"
               shape="rounded"
               page={page}
-              renderItem={(item) => (
-                <PaginationItem
-                  component={Link}
-                  to={`/app/books?page=${item.page}&genre=${genre}`}
-                  {...item}
-                />
-              )}
             />
           </Stack>
         ) : (
