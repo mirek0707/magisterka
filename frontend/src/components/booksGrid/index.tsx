@@ -37,6 +37,11 @@ const BooksGrid: React.FC<BooksGridProps> = ({
 
   const [searchParams, setSearchParams] = useSearchParams()
 
+  React.useEffect(() => {
+    searchParams.set('genre', genre as string)
+    setSearchParams(searchParams)
+  }, [genre])
+
   return (
     <>
       <Box sx={{ p: 2 }}>
@@ -50,10 +55,11 @@ const BooksGrid: React.FC<BooksGridProps> = ({
             sx={{ width: 200 }}
             onChange={(event) => {
               setGenre(event.target.value as string)
-              searchParams.set('genre', event.target.value as string)
-              setSearchParams(searchParams)
             }}
           >
+            <MenuItem value={''}>
+              <em>Wszystkie</em>
+            </MenuItem>
             {genres.status === 'success' ? (
               genres.data.genres.map((item, index) => (
                 <MenuItem key={index} value={item}>
