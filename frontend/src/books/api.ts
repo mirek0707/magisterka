@@ -10,3 +10,5 @@ export const getBooksPerPagePath = (data: BooksPerPageReq) =>
 export const getBookPath = (isbn: string) => `${API_ROOT_PATH}/${isbn}`
 
 export const getBooksCount = () => `${API_ROOT_PATH}/count`
+
+export const getBooksGenres = () => `${API_ROOT_PATH}/genres`

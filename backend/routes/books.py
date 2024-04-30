@@ -29,6 +29,12 @@ async def get_books_count(_: user_dependency):
     return {"count": count}
 
 
+@router.get("/genres", response_description="Get all available genres")
+async def get_all_genres(_: user_dependency):
+    genres = await books_collection.distinct("genre")
+    return {"genres": genres}
+
+
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
 async def get_one_book(isbn: str, _: user_dependency):
     try:

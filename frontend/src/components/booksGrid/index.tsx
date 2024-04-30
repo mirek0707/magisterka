@@ -1,45 +1,86 @@
-import { Grid } from '@mui/material'
+import {
+  Grid,
+  Box,
+  CssBaseline,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material'
 import * as React from 'react'
-import { useBooksPerPage } from 'src/books/rquery'
-import { Book } from 'src/books/types'
-import { CarouselItemProps } from 'src/components/carousel/types'
+import { useSearchParams } from 'react-router-dom'
+import { useBooksPerPage, useBooksGenres } from 'src/books/rquery'
+import { convertBookToCarouselItem } from 'src/utils/convertBookToCarouselItem'
 
 import BookCard from '../carousel/card'
+import { Loading } from '../loading'
 
 interface BooksGridProps {
   page: number
   booksPerPage: number
+  prevGenre: string | null
 }
 
-const BooksGrid: React.FC<BooksGridProps> = ({ page, booksPerPage }) => {
-  const books = useBooksPerPage({ page, limit: booksPerPage })
-  const convertBookToCarouselItem = (book: Book): CarouselItemProps => {
-    return {
-      title: book.title[0],
-      img_src:
-        book.img_src && book.img_src[0]
-          ? book.img_src[0]
-          : 'https://ih1.redbubble.net/image.1893341687.8294/fposter,small,wall_texture,product,750x1000.jpg',
-      author: book.author[0],
-      isbn: book.isbn,
-    }
-  }
+const BooksGrid: React.FC<BooksGridProps> = ({
+  page,
+  booksPerPage,
+  prevGenre,
+}) => {
+  const [genre, setGenre] = React.useState<string | null>(prevGenre)
+
+  const books = useBooksPerPage({
+    page,
+    limit: booksPerPage,
+    genre,
+  })
+  const genres = useBooksGenres()
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
   return (
-    <Grid container spacing={1} alignItems="">
-      {books.status === 'success' ? (
-        books.data.map((item, index) => (
-          <Grid item xs={12 / 10} key={index}>
-            <BookCard {...convertBookToCarouselItem(item)} />
-          </Grid>
-        ))
-      ) : (
-        <Loading />
-      )}
-    </Grid>
+    <>
+      <Box sx={{ p: 2 }}>
+        <CssBaseline />
+        <FormControl variant="outlined">
+          <InputLabel id="select-genre-label">Gatunek</InputLabel>
+          <Select
+            labelId="select-genre-label"
+            label="Gatunek"
+            value={genre}
+            sx={{ width: 200 }}
+            onChange={(event) => {
+              setGenre(event.target.value as string)
+              searchParams.set('genre', event.target.value as string)
+              setSearchParams(searchParams)
+            }}
+          >
+            {genres.status === 'success' ? (
+              genres.data.genres.map((item, index) => (
+                <MenuItem key={index} value={item}>
+                  {item}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value={''}>
+                <em>Ładowanie</em>
+              </MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
+      <Grid container spacing={1} alignItems="">
+        {books.status === 'success' ? (
+          books.data.map((item, index) => (
+            <Grid item xs={12 / 10} key={index}>
+              <BookCard {...convertBookToCarouselItem(item)} />
+            </Grid>
+          ))
+        ) : (
+          <Loading />
+        )}
+      </Grid>
+    </>
   )
-}
-function Loading() {
-  return <h2>🌀 Ładowanie...</h2>
 }
 
 export default BooksGrid

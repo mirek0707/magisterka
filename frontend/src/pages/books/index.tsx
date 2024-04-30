@@ -2,17 +2,17 @@ import { Box, CssBaseline, Divider, PaginationItem, Stack } from '@mui/material'
 import Pagination from '@mui/material/Pagination'
 import * as React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useBookCount } from 'src/books/rquery'
+import { useBooksCount } from 'src/books/rquery'
 import BooksGrid from 'src/components/booksGrid'
 
 const BooksPage: React.FC = () => {
   const location = useLocation()
   const query = new URLSearchParams(location.search)
   const page = parseInt(query.get('page') || '1', 10)
+  const genre = query.get('genre') || ''
 
-  const bookCountObject = useBookCount()
+  const bookCountObject = useBooksCount()
   const booksPerPage = 60
-  console.log(bookCountObject)
   return (
     <Box
       display="flex"
@@ -28,7 +28,7 @@ const BooksPage: React.FC = () => {
           maxWidth: '1600px',
         }}
       >
-        <BooksGrid page={page} booksPerPage={booksPerPage} />
+        <BooksGrid page={page} booksPerPage={booksPerPage} prevGenre={genre} />
         <Divider sx={{ color: 'success.dark', m: 2 }} />
         {bookCountObject.status === 'success' ? (
           <Stack spacing={2}>
@@ -40,9 +40,7 @@ const BooksPage: React.FC = () => {
               renderItem={(item) => (
                 <PaginationItem
                   component={Link}
-                  to={`/app/books${
-                    item.page === 1 ? '' : `?page=${item.page}`
-                  }`}
+                  to={`/app/books?page=${item.page}&genre=${genre}`}
                   {...item}
                 />
               )}
