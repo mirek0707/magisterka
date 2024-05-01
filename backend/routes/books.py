@@ -38,12 +38,12 @@ async def get_all_genres(_: user_dependency):
 
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
 async def get_one_book(isbn: str, _: user_dependency):
-    try:
-        isbn_obj = Isbn(isbn)
-        if not isbn_obj.validate():
-            raise ValueError("ISBN is not valid")
-    except:
-        raise HTTPException(status_code=422, detail="Not a valid ISBN")
+    # try:
+    #     isbn_obj = Isbn(isbn)
+    #     if not isbn_obj.validate():
+    #         raise ValueError("ISBN is not valid")
+    # except:
+    #     raise HTTPException(status_code=422, detail="Not a valid ISBN")
 
     book = await books_collection.find_one({"isbn": isbn})
     if not book:
