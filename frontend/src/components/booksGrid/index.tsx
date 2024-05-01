@@ -65,11 +65,14 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               <em>Wszystkie</em>
             </MenuItem>
             {genres.status === 'success' ? (
-              genres.data.genres.map((item, index) => (
-                <MenuItem key={index} value={item}>
-                  {item}
-                </MenuItem>
-              ))
+              genres.data.genres.map((item: string, index: number) => {
+                if (item !== '')
+                  return (
+                    <MenuItem key={index} value={item}>
+                      {item}
+                    </MenuItem>
+                  )
+              })
             ) : (
               <MenuItem value={''}>
                 <em>Ładowanie</em>
