@@ -1,4 +1,5 @@
 import datetime
+import re
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from database.db import books_collection
@@ -103,7 +104,8 @@ async def get_books_per_page(
         query["publisher"] = {"$regex": publisher, "$options": "i"}
 
     if genre:
-        query["genre"] = {"$regex": genre, "$options": "i"}
+        escaped_genre = re.sub(r"(\(|\))", r"\\\1", genre)
+        query["genre"] = {"$regex": escaped_genre, "$options": "i"}
 
     books = (
         await books_collection.find(query)
