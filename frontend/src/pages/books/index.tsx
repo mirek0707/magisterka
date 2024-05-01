@@ -12,7 +12,7 @@ const BooksPage: React.FC = () => {
   const page = parseInt(query.get('page') || '1', 10)
   const genre = query.get('genre') || ''
 
-  const bookCountObject = useBooksCount()
+  const bookCountObject = useBooksCount({ genre })
   const booksPerPage = 60
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     query.set('page', value.toString() as string)

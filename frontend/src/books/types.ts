@@ -34,10 +34,18 @@ export type BooksPerPageReq = {
   genre?: string | null
 }
 
-export type BookCount = {
+export type BooksCount = {
   count: number
 }
 
 export type BooksGenres = {
   genres: string[]
+}
+
+export type BooksCountFiltersReq = {
+  release_year_from?: number | null
+  release_year_to?: number | null
+  author?: string | null
+  publisher?: string | null
+  genre?: string | null
 }

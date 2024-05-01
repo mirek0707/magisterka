@@ -25,8 +25,47 @@ router = APIRouter(
 
 
 @router.get("/count", response_description="Get number of books")
-async def get_books_count(_: user_dependency):
-    count = await books_collection.count_documents({})
+async def get_books_count(
+    _: user_dependency,
+    release_year_from: int | None = None,
+    release_year_to: int | None = None,
+    author: str | None = None,
+    publisher: str | None = None,
+    genre: str | None = None,
+):
+    query = {}
+
+    if release_year_from is not None and release_year_to is not None:
+        from_date = datetime.datetime(release_year_from - 1, 12, 31, 12, 30, 30, 125000)
+        to_date = datetime.datetime(release_year_to, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [
+            {"release_year": {"$gte": release_year_from, "$lte": release_year_to}},
+            {"release_date": {"$gt": from_date, "$lte": to_date}},
+        ]
+    elif release_year_from is not None:
+        from_date = datetime.datetime(release_year_from - 1, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [
+            {"release_year": {"$gte": release_year_from}},
+            {"release_date": {"$gt": from_date}},
+        ]
+    elif release_year_to is not None:
+        to_date = datetime.datetime(release_year_to, 12, 31, 12, 30, 30, 125000)
+        query["$or"] = [
+            {"release_year": {"$lte": release_year_to}},
+            {"release_date": {"$lte": to_date}},
+        ]
+
+    if author:
+        query["author"] = {"$regex": author, "$options": "i"}
+
+    if publisher:
+        query["publisher"] = {"$regex": publisher, "$options": "i"}
+
+    if genre:
+        escaped_genre = re.sub(r"(\(|\))", r"\\\1", genre)
+        query["genre"] = {"$regex": escaped_genre, "$options": "i"}
+
+    count = await books_collection.count_documents(query)
     return {"count": count}
 
 
