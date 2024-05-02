@@ -75,6 +75,54 @@ async def get_all_genres(_: user_dependency):
     return {"genres": genres}
 
 
+@router.get("/publishers", response_description="Get all available publishers")
+async def get_all_publishers(_: user_dependency):
+    unique_publishers = set()
+    publishers = await books_collection.distinct("publisher")
+    unique_publishers.update(publishers)
+    return {"publishers": sorted(unique_publishers)}
+
+
+@router.get("/authors", response_description="Get all available authors")
+async def get_all_authors(_: user_dependency):
+    unique_authors = set()
+    authors = await books_collection.distinct("author")
+    unique_authors.update(authors)
+    return {"authors": sorted(unique_authors)}
+
+
+@router.get("/years", response_description="Get min and max release years")
+async def get_min_max_release_years(_: user_dependency):
+    max_date = await books_collection.find_one(
+        {}, {"release_date": 1}, sort=[("release_date", -1)]
+    )
+
+    min_date = await books_collection.find_one(
+        {"release_date": {"$exists": True, "$ne": []}},
+        {"release_date": 1},
+        sort=[("release_date", 1)],
+    )
+
+    max_rel_year = await books_collection.find_one(
+        {}, {"release_year": 1}, sort=[("release_year", -1)]
+    )
+
+    min_rel_year = await books_collection.find_one(
+        {"release_year": {"$exists": True, "$ne": []}},
+        {"release_year": 1},
+        sort=[("release_year", 1)],
+    )
+
+    max_year = max(
+        max(max_date["release_date"]).year, max(max_rel_year["release_year"])
+    )
+    min_year = min(
+        min(min_date["release_date"]).year, min(min_rel_year["release_year"])
+    )
+
+    return {"max_year": max_year, "min_year": min_year}
+
+
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)
 async def get_one_book(isbn: str, _: user_dependency):
     # try:

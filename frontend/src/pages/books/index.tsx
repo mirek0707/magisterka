@@ -11,8 +11,18 @@ const BooksPage: React.FC = () => {
   const query = new URLSearchParams(location.search)
   const page = parseInt(query.get('page') || '1', 10)
   const genre = query.get('genre') || ''
+  const author = query.get('author') || ''
+  const publisher = query.get('publisher') || ''
+  const release_year_from = parseInt(query.get('release_year_from') || '2', 10)
+  const release_year_to = parseInt(query.get('release_year_to') || '2100', 10)
 
-  const bookCountObject = useBooksCount({ genre })
+  const bookCountObject = useBooksCount({
+    genre,
+    author,
+    publisher,
+    release_year_from,
+    release_year_to,
+  })
   const booksPerPage = 60
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     query.set('page', value.toString() as string)
@@ -37,6 +47,10 @@ const BooksPage: React.FC = () => {
           prevPage={page}
           booksPerPage={booksPerPage}
           prevGenre={genre}
+          prevAuthor={author}
+          prevPublisher={publisher}
+          release_year_from={release_year_from}
+          release_year_to={release_year_to}
         />
         <Divider sx={{ color: 'success.dark', m: 2 }} />
         {bookCountObject.status === 'success' ? (

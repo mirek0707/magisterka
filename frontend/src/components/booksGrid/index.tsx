@@ -6,10 +6,21 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Autocomplete,
+  TextField,
+  createFilterOptions,
+  Slider,
+  Typography,
 } from '@mui/material'
 import * as React from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useBooksPerPage, useBooksGenres } from 'src/books/rquery'
+import {
+  useBooksPerPage,
+  useBooksGenres,
+  useBooksAuthors,
+  useBooksPublishers,
+  useBooksMinMaxYears,
+} from 'src/books/rquery'
 import { convertBookToCarouselItem } from 'src/utils/convertBookToCarouselItem'
 
 import BookCard from '../carousel/card'
@@ -19,66 +30,222 @@ interface BooksGridProps {
   prevPage: number
   booksPerPage: number
   prevGenre: string | null
+  prevAuthor: string | null
+  prevPublisher: string | null
+  release_year_from: number
+  release_year_to: number
+}
+
+interface AutocompleteOption {
+  label: string
+  value: string
+}
+
+function valueLabelFormat(value: number[]) {
+  return `Lata wydania: ${value[0]} – ${value[1]} r.`
 }
 
 const BooksGrid: React.FC<BooksGridProps> = ({
   prevPage,
   booksPerPage,
   prevGenre,
+  prevAuthor,
+  prevPublisher,
+  release_year_from,
+  release_year_to,
 }) => {
   const [genre, setGenre] = React.useState<string | null>(prevGenre)
   const [page, setPage] = React.useState<number>(prevPage)
+  const [author, setAuthor] = React.useState<string | null>(prevAuthor)
+  const [publisher, setPublisher] = React.useState<string | null>(prevPublisher)
+
+  const [authorACValue, setAuthorACValue] = React.useState<string | null>(
+    prevAuthor
+  )
+  const [publisherACValue, setPublisherACValue] = React.useState<string | null>(
+    prevPublisher
+  )
 
   const books = useBooksPerPage({
     page: prevPage,
     limit: booksPerPage,
     genre,
+    author: prevAuthor,
+    publisher: prevPublisher,
+    release_year_from,
+    release_year_to,
   })
+  const authors = useBooksAuthors()
   const genres = useBooksGenres()
+  const publishers = useBooksPublishers()
+  const minmax_year = useBooksMinMaxYears()
+
+  const [releaseYears, setReleaseYears] = React.useState<number[]>([
+    release_year_from,
+    release_year_to,
+  ])
 
   const [, setSearchParams] = useSearchParams()
+
+  const filterOptions = createFilterOptions({
+    ignoreCase: true,
+    matchFrom: 'any',
+    limit: 30,
+  })
+
+  const onAuthorChange = (
+    _: React.SyntheticEvent<Element, Event>,
+    value: unknown
+  ) => {
+    if (value !== null) {
+      setAuthor((value as AutocompleteOption).value)
+    }
+  }
+
+  const onPublisherChange = (
+    _: React.SyntheticEvent<Element, Event>,
+    value: unknown
+  ) => {
+    if (value !== null) {
+      setPublisher((value as AutocompleteOption).value)
+    }
+  }
+  const handleChange = (_: Event, newValue: number | number[]) => {
+    setReleaseYears(newValue as number[])
+  }
+
+  React.useEffect(() => {
+    if (minmax_year.status === 'success') {
+      setReleaseYears([minmax_year.data.min_year, minmax_year.data.max_year])
+    }
+  }, [minmax_year.status, minmax_year.data])
 
   React.useEffect(() => {
     setSearchParams({
       genre: genre as string,
       page: page.toString() as string,
+      author: author as string,
+      publisher: publisher as string,
+      release_year_from: releaseYears[0].toString(),
+      release_year_to: releaseYears[1].toString(),
     })
-  }, [genre])
+  }, [genre, author, publisher, releaseYears])
 
   return (
     <>
       <Box sx={{ p: 2 }}>
         <CssBaseline />
-        <FormControl variant="outlined">
-          <InputLabel id="select-genre-label">Gatunek</InputLabel>
-          <Select
-            labelId="select-genre-label"
-            label="Gatunek"
-            value={genre}
-            sx={{ width: 200 }}
-            onChange={(event) => {
-              setGenre(event.target.value as string)
-              setPage(1)
+        <FormControl variant="outlined" sx={{ width: 1 }}>
+          <Grid
+            container
+            sx={{
+              display: 'grid',
+              gridAutoFlow: 'column',
+              gap: 1,
             }}
           >
-            <MenuItem value={''}>
-              <em>Wszystkie</em>
-            </MenuItem>
-            {genres.status === 'success' ? (
-              genres.data.genres.map((item: string, index: number) => {
-                if (item !== '')
-                  return (
-                    <MenuItem key={index} value={item}>
-                      {item}
-                    </MenuItem>
-                  )
-              })
-            ) : (
-              <MenuItem value={''}>
-                <em>Ładowanie</em>
-              </MenuItem>
-            )}
-          </Select>
+            <Grid item>
+              <InputLabel id="select-genre-label">Gatunek</InputLabel>
+              <Select
+                labelId="select-genre-label"
+                label="Gatunek"
+                value={genre}
+                onChange={(event) => {
+                  setGenre(event.target.value as string)
+                  setPage(1)
+                }}
+                sx={{ width: 1 }}
+              >
+                <MenuItem value={''}>
+                  <em>Wszystkie</em>
+                </MenuItem>
+                {genres.status === 'success' ? (
+                  genres.data.genres.map((item: string, index: number) => {
+                    if (item !== '')
+                      return (
+                        <MenuItem key={index} value={item}>
+                          {item}
+                        </MenuItem>
+                      )
+                  })
+                ) : (
+                  <MenuItem value={''}>
+                    <em>Ładowanie</em>
+                  </MenuItem>
+                )}
+              </Select>
+            </Grid>
+            <Autocomplete
+              disablePortal
+              id="authors"
+              filterOptions={filterOptions}
+              value={null}
+              inputValue={
+                (authorACValue as string) === 'Wszyscy'
+                  ? ''
+                  : (authorACValue as string)
+              }
+              onInputChange={(_, value) => setAuthorACValue(value)}
+              clearOnBlur={false}
+              clearOnEscape={false}
+              renderInput={(params) => <TextField {...params} label="Autor" />}
+              options={
+                authors.status === 'success'
+                  ? authors.data.authors.map((option) => ({
+                      label: option === '' ? 'Wszyscy' : option,
+                      value: option,
+                    }))
+                  : ['Ładowanie']
+              }
+              readOnly={authors.status !== 'success'}
+              onChange={onAuthorChange}
+              disableClearable={false}
+            />
+            <Autocomplete
+              disablePortal
+              id="publishers"
+              filterOptions={filterOptions}
+              value={null}
+              inputValue={
+                (publisherACValue as string) === 'Wszystkie'
+                  ? ''
+                  : (publisherACValue as string)
+              }
+              onInputChange={(_, value) => setPublisherACValue(value)}
+              clearOnBlur={false}
+              clearOnEscape={false}
+              renderInput={(params) => (
+                <TextField {...params} label="Wydawnictwo" />
+              )}
+              options={
+                publishers.status === 'success'
+                  ? publishers.data.publishers.map((option) => ({
+                      label: option === '' ? 'Wszystkie' : option,
+                      value: option,
+                    }))
+                  : ['Ładowanie']
+              }
+              readOnly={publishers.status !== 'success'}
+              onChange={onPublisherChange}
+              disableClearable={false}
+            />
+          </Grid>
+          {minmax_year.status === 'success' && (
+            <>
+              <Typography id="non-linear-slider" gutterBottom sx={{ pt: 4 }}>
+                {valueLabelFormat(releaseYears)}
+              </Typography>
+              <Slider
+                getAriaLabel={() => 'Lata wydania'}
+                value={releaseYears}
+                onChange={handleChange}
+                valueLabelDisplay="auto"
+                min={minmax_year.data.min_year}
+                max={minmax_year.data.max_year}
+                sx={{ width: 1, pb: 2 }}
+              />
+            </>
+          )}
         </FormControl>
       </Box>
       <Grid container spacing={1} alignItems="">

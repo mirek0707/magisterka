@@ -6,13 +6,19 @@ import {
   getBookPath,
   getBooksCount,
   getBooksGenres,
+  getBooksAuthors,
+  getBooksPublishers,
+  getBooksMinMaxYears,
 } from './api'
 import {
   BooksPerPageReq,
   Book,
   BooksCount,
-  BooksGenres,
   BooksCountFiltersReq,
+  BooksGenres,
+  BooksAuthors,
+  BooksPublishers,
+  BooksMinMaxYears,
 } from './types'
 
 export const useBooksPerPage = (data: BooksPerPageReq) =>
@@ -24,5 +30,14 @@ export const useBook = (isbn: string) =>
 export const useBooksCount = (data: BooksCountFiltersReq) =>
   useReactQuery<BooksCount>(get, getBooksCount(data))
 
+export const useBooksAuthors = () =>
+  useReactQuery<BooksAuthors>(get, getBooksAuthors())
+
 export const useBooksGenres = () =>
   useReactQuery<BooksGenres>(get, getBooksGenres())
+
+export const useBooksPublishers = () =>
+  useReactQuery<BooksPublishers>(get, getBooksPublishers())
+
+export const useBooksMinMaxYears = () =>
+  useReactQuery<BooksMinMaxYears>(get, getBooksMinMaxYears())

@@ -38,6 +38,10 @@ export type BooksCount = {
   count: number
 }
 
+export type BooksAuthors = {
+  authors: string[]
+}
+
 export type BooksGenres = {
   genres: string[]
 }
@@ -48,4 +52,13 @@ export type BooksCountFiltersReq = {
   author?: string | null
   publisher?: string | null
   genre?: string | null
+}
+
+export type BooksPublishers = {
+  publishers: string[]
+}
+
+export type BooksMinMaxYears = {
+  max_year: number
+  min_year: number
 }
