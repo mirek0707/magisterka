@@ -11,8 +11,10 @@ from models.userRole import UserRole
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 
-def create_access_token(username: str, id: str, role: str, expires_delta: timedelta):
-    encode = {"sub": username, "id": id, "role": role}
+def create_access_token(
+    username: str, email: str, id: str, role: str, expires_delta: timedelta
+):
+    encode = {"sub": username, "email": email, "id": id, "role": role}
     current_date = datetime.now(pytz.timezone("Europe/Warsaw"))
     expires = current_date + expires_delta
     encode.update({"exp": expires})
@@ -32,11 +34,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
             token, os.environ["SECRET_KEY"], algorithms=[os.environ["ALGORITHM"]]
         )
         username: str = payload.get("sub")
+        email: str = payload.get("email")
         id: ObjectId = ObjectId(payload.get("id"))
         role: str = payload.get("role")
-        if username is None or id is None or role is None:
+
+        if username is None or id is None or role is None or email is None:
             raise credentials_exception
-        return {"username": username, "id": id, "role": role}
+        return {"username": username, "email": email, "id": id, "role": role}
     except JWTError:
         raise credentials_exception
 

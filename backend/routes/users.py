@@ -102,7 +102,11 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         )
 
     token = create_access_token(
-        user["username"], str(user["_id"]), user["role"], timedelta(hours=4)
+        user["username"],
+        user["email"],
+        str(user["_id"]),
+        user["role"],
+        timedelta(hours=4),
     )
 
     return {"access_token": token, "token_type": "Bearer"}
@@ -132,8 +136,8 @@ async def get_user_info(_: user_dependency, user_id: str):
 async def get_user_info_from_token(
     _: user_dependency, curr_user: current_user_depedency
 ):
-    username, id, role = curr_user.values()
-    return {"username": username, "id": str(id), "role": role}
+    username, email, id, role = curr_user.values()
+    return {"username": username, "email": email, "id": str(id), "role": role}
 
 
 @router.put("/edit", response_description="Edit a user")
