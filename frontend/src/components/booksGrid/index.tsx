@@ -8,10 +8,11 @@ import {
   Select,
   Autocomplete,
   TextField,
-  createFilterOptions,
   Slider,
   Typography,
+  FilterOptionsState,
 } from '@mui/material'
+import { matchSorter } from 'match-sorter'
 import * as React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
@@ -58,6 +59,10 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   const [page, setPage] = React.useState<number>(prevPage)
   const [author, setAuthor] = React.useState<string | null>(prevAuthor)
   const [publisher, setPublisher] = React.useState<string | null>(prevPublisher)
+  const [releaseYears, setReleaseYears] = React.useState<number[]>([
+    release_year_from,
+    release_year_to,
+  ])
 
   const [authorACValue, setAuthorACValue] = React.useState<string | null>(
     prevAuthor
@@ -80,18 +85,36 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   const publishers = useBooksPublishers()
   const minmax_year = useBooksMinMaxYears()
 
-  const [releaseYears, setReleaseYears] = React.useState<number[]>([
-    release_year_from,
-    release_year_to,
-  ])
-
   const [, setSearchParams] = useSearchParams()
 
-  const filterOptions = createFilterOptions({
-    ignoreCase: true,
-    matchFrom: 'any',
-    limit: 30,
-  })
+  // //default filtering
+  // const filterOptions = createFilterOptions({
+  //   ignoreCase: true,
+  //   matchFrom: 'any',
+  //   limit: 30,
+  // })
+
+  const filterPublishersOptions = (
+    options: AutocompleteOption[],
+    { inputValue }: FilterOptionsState<AutocompleteOption>
+  ) => {
+    const sorted = matchSorter(options, inputValue, {
+      keys: ['label'],
+      threshold: matchSorter.rankings.WORD_STARTS_WITH,
+    }).slice(0, 29)
+    return [{ label: 'Wszystkie', value: '' }, ...sorted]
+  }
+
+  const filterAuthorsOptions = (
+    options: AutocompleteOption[],
+    { inputValue }: FilterOptionsState<AutocompleteOption>
+  ) => {
+    const sorted = matchSorter(options, inputValue, {
+      keys: ['label'],
+      threshold: matchSorter.rankings.WORD_STARTS_WITH,
+    }).slice(0, 29)
+    return [{ label: 'Wszyscy', value: '' }, ...sorted]
+  }
 
   const onAuthorChange = (
     _: React.SyntheticEvent<Element, Event>,
@@ -110,7 +133,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
       setPublisher((value as AutocompleteOption).value)
     }
   }
-  const handleChange = (_: Event, newValue: number | number[]) => {
+  const handleReleaseYearsChange = (_: Event, newValue: number | number[]) => {
     setReleaseYears(newValue as number[])
   }
 
@@ -178,7 +201,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
             <Autocomplete
               disablePortal
               id="authors"
-              filterOptions={filterOptions}
+              filterOptions={filterAuthorsOptions}
               value={null}
               inputValue={
                 (authorACValue as string) === 'Wszyscy'
@@ -191,11 +214,13 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               renderInput={(params) => <TextField {...params} label="Autor" />}
               options={
                 authors.status === 'success'
-                  ? authors.data.authors.map((option) => ({
-                      label: option === '' ? 'Wszyscy' : option,
-                      value: option,
-                    }))
-                  : ['Ładowanie']
+                  ? authors.data.authors
+                      .filter((option) => option !== '')
+                      .map((option) => ({
+                        label: option,
+                        value: option,
+                      }))
+                  : [{ label: 'Ładowanie', value: '' }]
               }
               readOnly={authors.status !== 'success'}
               onChange={onAuthorChange}
@@ -204,7 +229,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
             <Autocomplete
               disablePortal
               id="publishers"
-              filterOptions={filterOptions}
+              filterOptions={filterPublishersOptions}
               value={null}
               inputValue={
                 (publisherACValue as string) === 'Wszystkie'
@@ -219,11 +244,13 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               )}
               options={
                 publishers.status === 'success'
-                  ? publishers.data.publishers.map((option) => ({
-                      label: option === '' ? 'Wszystkie' : option,
-                      value: option,
-                    }))
-                  : ['Ładowanie']
+                  ? publishers.data.publishers
+                      .filter((option) => option !== '')
+                      .map((option) => ({
+                        label: option,
+                        value: option,
+                      }))
+                  : [{ label: 'Ładowanie', value: '' }]
               }
               readOnly={publishers.status !== 'success'}
               onChange={onPublisherChange}
@@ -238,7 +265,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               <Slider
                 getAriaLabel={() => 'Lata wydania'}
                 value={releaseYears}
-                onChange={handleChange}
+                onChange={handleReleaseYearsChange}
                 valueLabelDisplay="auto"
                 min={minmax_year.data.min_year}
                 max={minmax_year.data.max_year}
