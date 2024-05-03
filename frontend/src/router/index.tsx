@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from 'react-router-dom'
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
 import AppPage from 'src/application'
 import LoginPage from 'src/auth/login'
 import RegisterPage from 'src/auth/register'
@@ -14,6 +14,10 @@ import { Routes } from 'src/routes'
 import ProtectedRoute from './private'
 
 export const BrowserRouter = createBrowserRouter([
+  {
+    path: Routes.HomeUrl(),
+    element: <Navigate to={Routes.AppUrl()} replace />,
+  },
   {
     path: Routes.HomeUrl(),
     element: (
