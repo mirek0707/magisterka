@@ -28,11 +28,17 @@ const UserMenu: React.FC = () => {
   const LayoutDrawerNavConfig: Array<MenuItemConfig> = [
     {
       name: 'Profil',
-      onClick: () => navigate(Routes.ProfileUrl()),
+      onClick: () => {
+        navigate(Routes.ProfileUrl())
+        handleCloseUserMenu()
+      },
     },
     {
       name: 'Wyloguj',
-      onClick: () => signOutAndRedirect(),
+      onClick: () => {
+        handleCloseUserMenu()
+        signOutAndRedirect()
+      },
     },
   ]
 

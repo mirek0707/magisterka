@@ -138,7 +138,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   }
 
   React.useEffect(() => {
-    if (minmax_year.status === 'success') {
+    if (minmax_year.isSuccess) {
       setReleaseYears([minmax_year.data.min_year, minmax_year.data.max_year])
     }
   }, [minmax_year.status, minmax_year.data])
@@ -182,7 +182,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
                 <MenuItem value={''}>
                   <em>Wszystkie</em>
                 </MenuItem>
-                {genres.status === 'success' ? (
+                {genres.isSuccess ? (
                   genres.data.genres.map((item: string, index: number) => {
                     if (item !== '')
                       return (
@@ -213,7 +213,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               clearOnEscape={false}
               renderInput={(params) => <TextField {...params} label="Autor" />}
               options={
-                authors.status === 'success'
+                authors.isSuccess
                   ? authors.data.authors
                       .filter((option) => option !== '')
                       .map((option) => ({
@@ -222,7 +222,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
                       }))
                   : [{ label: 'Ładowanie', value: '' }]
               }
-              readOnly={authors.status !== 'success'}
+              readOnly={!authors.isSuccess}
               onChange={onAuthorChange}
               disableClearable={false}
             />
@@ -243,7 +243,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
                 <TextField {...params} label="Wydawnictwo" />
               )}
               options={
-                publishers.status === 'success'
+                publishers.isSuccess
                   ? publishers.data.publishers
                       .filter((option) => option !== '')
                       .map((option) => ({
@@ -252,12 +252,12 @@ const BooksGrid: React.FC<BooksGridProps> = ({
                       }))
                   : [{ label: 'Ładowanie', value: '' }]
               }
-              readOnly={publishers.status !== 'success'}
+              readOnly={!publishers.isSuccess}
               onChange={onPublisherChange}
               disableClearable={false}
             />
           </Grid>
-          {minmax_year.status === 'success' && (
+          {minmax_year.isSuccess && (
             <>
               <Typography id="non-linear-slider" gutterBottom sx={{ pt: 4 }}>
                 {valueLabelFormat(releaseYears)}
@@ -276,7 +276,7 @@ const BooksGrid: React.FC<BooksGridProps> = ({
         </FormControl>
       </Box>
       <Grid container spacing={1} alignItems="">
-        {books.status === 'success' ? (
+        {books.isSuccess ? (
           books.data.map((item, index) => (
             <Grid item xs={12 / 10} key={index}>
               <BookCard {...convertBookToCarouselItem(item)} />

@@ -53,7 +53,7 @@ const BooksPage: React.FC = () => {
           release_year_to={release_year_to}
         />
         <Divider sx={{ color: 'success.dark', m: 2 }} />
-        {bookCountObject.status === 'success' ? (
+        {bookCountObject.isSuccess ? (
           <Stack spacing={2}>
             <Pagination
               onChange={handleChange}

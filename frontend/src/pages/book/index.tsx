@@ -21,10 +21,10 @@ const BookPage: React.FC = () => {
   moment.locale('pl')
   const { isbn = '' } = useParams()
   const book = useBook(isbn)
-  if (book.status === 'error' || book.status === 'idle') {
+  if (book.isError || book.isIdle) {
     return <ErrorPage />
   }
-  if (book.status === 'loading') {
+  if (book.isLoading) {
     return <Loading />
   }
   return (
