@@ -3,7 +3,7 @@ import Pagination from '@mui/material/Pagination'
 import * as React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useBooksCount, useBooksMinMaxYears } from 'src/books/rquery'
-import BooksGrid from 'src/components/booksGrid'
+import BooksGridWithFilters from 'src/components/booksGridWithFilters'
 import { Loading } from 'src/components/loading'
 
 const BooksPage: React.FC = () => {
@@ -57,7 +57,7 @@ const BooksPage: React.FC = () => {
       >
         {minmax_year.isSuccess ? (
           <>
-            <BooksGrid
+            <BooksGridWithFilters
               prevPage={page}
               booksPerPage={booksPerPage}
               prevGenre={genre}

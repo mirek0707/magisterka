@@ -2,8 +2,12 @@ import SearchIcon from '@mui/icons-material/Search'
 import InputBase from '@mui/material/InputBase'
 import { styled, alpha } from '@mui/material/styles'
 import * as React from 'react'
+import { useNavigate, createSearchParams } from 'react-router-dom'
+import { Routes } from 'src/routes'
 
 const SearchBar: React.FC = () => {
+  const navigate = useNavigate()
+  const [searchInput, setSearchInput] = React.useState('')
   return (
     <Search>
       <SearchIconWrapper>
@@ -12,6 +16,22 @@ const SearchBar: React.FC = () => {
       <StyledInputBase
         placeholder="Szukaj..."
         inputProps={{ 'aria-label': 'search' }}
+        onChange={(e) => {
+          setSearchInput(e.target.value)
+        }}
+        value={searchInput}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            const searchInputVal = searchInput
+            setSearchInput('')
+            navigate({
+              pathname: Routes.SearchUrl(),
+              search: createSearchParams({
+                q: `${searchInputVal}`,
+              }).toString(),
+            })
+          }
+        }}
       />
     </Search>
   )

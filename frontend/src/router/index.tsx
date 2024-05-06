@@ -8,6 +8,7 @@ import BooksPage from 'src/pages/books'
 import ErrorPage from 'src/pages/error'
 import LibraryPage from 'src/pages/library'
 import ProfilePage from 'src/pages/profile'
+import SearchPage from 'src/pages/search'
 import Providers from 'src/providers'
 import { Routes } from 'src/routes'
 
@@ -39,6 +40,14 @@ export const BrowserRouter = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <AppPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: Routes.SearchUrl(),
+            element: (
+              <ProtectedRoute>
+                <SearchPage />
               </ProtectedRoute>
             ),
           },

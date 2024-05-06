@@ -6,6 +6,7 @@ export const Routes = {
 
   LibraryUrl: () => `/app/library`,
   BooksUrl: () => `/app/books`,
+  SearchUrl: () => `/app/search`,
   ProfileUrl: () => `/app/profile`,
 
   BookUrl: (isbn: string) => `/app/books/${isbn}`,
