@@ -66,6 +66,9 @@ const BooksGrid: React.FC<BooksGridProps> = ({
     release_year_from,
     release_year_to,
   ])
+  const [releaseYearsDisplay, setReleaseYearsDisplay] = React.useState<
+    number[]
+  >([release_year_from, release_year_to])
 
   const [authorACValue, setAuthorACValue] = React.useState<string | null>(
     prevAuthor
@@ -156,8 +159,20 @@ const BooksGrid: React.FC<BooksGridProps> = ({
       setPublisher((value as AutocompleteOption).value)
     }
   }
-  const handleReleaseYearsChange = (_: Event, newValue: number | number[]) => {
+  const handleReleaseYearsChange = (
+    event: React.SyntheticEvent | Event,
+    newValue: number | number[]
+  ) => {
+    if (event.type === 'input') return
     setReleaseYears(newValue as number[])
+  }
+
+  const handleReleaseYearsChangeDisplay = (
+    event: React.SyntheticEvent | Event,
+    newValue: number | number[]
+  ) => {
+    if (event.type === 'input') return
+    setReleaseYearsDisplay(newValue as number[])
   }
 
   React.useEffect(() => {
@@ -282,8 +297,9 @@ const BooksGrid: React.FC<BooksGridProps> = ({
           </Typography>
           <Slider
             getAriaLabel={() => 'Lata wydania'}
-            value={releaseYears}
-            onChange={handleReleaseYearsChange}
+            value={releaseYearsDisplay}
+            onChangeCommitted={handleReleaseYearsChange}
+            onChange={handleReleaseYearsChangeDisplay}
             valueLabelDisplay="auto"
             min={min_release_year}
             max={max_release_year}
