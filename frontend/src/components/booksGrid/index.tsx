@@ -20,7 +20,6 @@ import {
   useBooksGenres,
   useBooksAuthors,
   useBooksPublishers,
-  useBooksMinMaxYears,
 } from 'src/books/rquery'
 import { convertBookToCarouselItem } from 'src/utils/convertBookToCarouselItem'
 
@@ -35,6 +34,8 @@ interface BooksGridProps {
   prevPublisher: string | null
   release_year_from: number
   release_year_to: number
+  min_release_year: number
+  max_release_year: number
 }
 
 interface AutocompleteOption {
@@ -54,6 +55,8 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   prevPublisher,
   release_year_from,
   release_year_to,
+  min_release_year,
+  max_release_year,
 }) => {
   const [genre, setGenre] = React.useState<string | null>(prevGenre)
   const [page, setPage] = React.useState<number>(prevPage)
@@ -83,25 +86,31 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   const authors = useBooksAuthors()
   const genres = useBooksGenres()
   const publishers = useBooksPublishers()
-  const minmax_year = useBooksMinMaxYears()
 
   const [, setSearchParams] = useSearchParams()
-
-  // //default filtering
-  // const filterOptions = createFilterOptions({
-  //   ignoreCase: true,
-  //   matchFrom: 'any',
-  //   limit: 30,
-  // })
 
   const filterPublishersOptions = (
     options: AutocompleteOption[],
     { inputValue }: FilterOptionsState<AutocompleteOption>
   ) => {
-    const sorted = matchSorter(options, inputValue, {
-      keys: ['label'],
-      threshold: matchSorter.rankings.WORD_STARTS_WITH,
-    }).slice(0, 29)
+    const terms = inputValue.split(' ')
+    let sorted: AutocompleteOption[] = []
+    if (!terms)
+      sorted = matchSorter(options, inputValue, {
+        keys: ['label'],
+        threshold: matchSorter.rankings.WORD_STARTS_WITH,
+      }).slice(0, 29)
+    else
+      sorted = terms
+        .reduceRight(
+          (results, term) =>
+            matchSorter(results, term, {
+              keys: ['label'],
+              threshold: matchSorter.rankings.WORD_STARTS_WITH,
+            }),
+          options
+        )
+        .slice(0, 29)
     return [{ label: 'Wszystkie', value: '' }, ...sorted]
   }
 
@@ -109,10 +118,24 @@ const BooksGrid: React.FC<BooksGridProps> = ({
     options: AutocompleteOption[],
     { inputValue }: FilterOptionsState<AutocompleteOption>
   ) => {
-    const sorted = matchSorter(options, inputValue, {
-      keys: ['label'],
-      threshold: matchSorter.rankings.WORD_STARTS_WITH,
-    }).slice(0, 29)
+    const terms = inputValue.split(' ')
+    let sorted: AutocompleteOption[] = []
+    if (!terms)
+      sorted = matchSorter(options, inputValue, {
+        keys: ['label'],
+        threshold: matchSorter.rankings.WORD_STARTS_WITH,
+      }).slice(0, 29)
+    else
+      sorted = terms
+        .reduceRight(
+          (results, term) =>
+            matchSorter(results, term, {
+              keys: ['label'],
+              threshold: matchSorter.rankings.WORD_STARTS_WITH,
+            }),
+          options
+        )
+        .slice(0, 29)
     return [{ label: 'Wszyscy', value: '' }, ...sorted]
   }
 
@@ -138,12 +161,6 @@ const BooksGrid: React.FC<BooksGridProps> = ({
   }
 
   React.useEffect(() => {
-    if (minmax_year.isSuccess) {
-      setReleaseYears([minmax_year.data.min_year, minmax_year.data.max_year])
-    }
-  }, [minmax_year.status, minmax_year.data])
-
-  React.useEffect(() => {
     setSearchParams({
       genre: genre as string,
       page: page.toString() as string,
@@ -152,6 +169,10 @@ const BooksGrid: React.FC<BooksGridProps> = ({
       release_year_from: releaseYears[0].toString(),
       release_year_to: releaseYears[1].toString(),
     })
+  }, [genre, author, publisher, releaseYears])
+
+  React.useEffect(() => {
+    setPage(1)
   }, [genre, author, publisher, releaseYears])
 
   return (
@@ -175,7 +196,6 @@ const BooksGrid: React.FC<BooksGridProps> = ({
                 value={genre}
                 onChange={(event) => {
                   setGenre(event.target.value as string)
-                  setPage(1)
                 }}
                 sx={{ width: 1 }}
               >
@@ -257,22 +277,18 @@ const BooksGrid: React.FC<BooksGridProps> = ({
               disableClearable={false}
             />
           </Grid>
-          {minmax_year.isSuccess && (
-            <>
-              <Typography id="non-linear-slider" gutterBottom sx={{ pt: 4 }}>
-                {valueLabelFormat(releaseYears)}
-              </Typography>
-              <Slider
-                getAriaLabel={() => 'Lata wydania'}
-                value={releaseYears}
-                onChange={handleReleaseYearsChange}
-                valueLabelDisplay="auto"
-                min={minmax_year.data.min_year}
-                max={minmax_year.data.max_year}
-                sx={{ width: 1, pb: 2 }}
-              />
-            </>
-          )}
+          <Typography id="non-linear-slider" gutterBottom sx={{ pt: 4 }}>
+            {valueLabelFormat(releaseYears)}
+          </Typography>
+          <Slider
+            getAriaLabel={() => 'Lata wydania'}
+            value={releaseYears}
+            onChange={handleReleaseYearsChange}
+            valueLabelDisplay="auto"
+            min={min_release_year}
+            max={max_release_year}
+            sx={{ width: 1, pb: 2 }}
+          />
         </FormControl>
       </Box>
       <Grid container spacing={1} alignItems="">

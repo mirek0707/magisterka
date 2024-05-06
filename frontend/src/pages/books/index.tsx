@@ -2,8 +2,9 @@ import { Box, CssBaseline, Divider, Stack } from '@mui/material'
 import Pagination from '@mui/material/Pagination'
 import * as React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useBooksCount } from 'src/books/rquery'
+import { useBooksCount, useBooksMinMaxYears } from 'src/books/rquery'
 import BooksGrid from 'src/components/booksGrid'
+import { Loading } from 'src/components/loading'
 
 const BooksPage: React.FC = () => {
   const location = useLocation()
@@ -13,8 +14,19 @@ const BooksPage: React.FC = () => {
   const genre = query.get('genre') || ''
   const author = query.get('author') || ''
   const publisher = query.get('publisher') || ''
-  const release_year_from = parseInt(query.get('release_year_from') || '2', 10)
-  const release_year_to = parseInt(query.get('release_year_to') || '2100', 10)
+  const minmax_year = useBooksMinMaxYears()
+  const min_release_year = minmax_year.data?.min_year as number
+  const max_release_year = minmax_year.data?.max_year as number
+
+  let release_year_from = parseInt(
+    query.get('release_year_from') || '-9999',
+    10
+  )
+  let release_year_to = parseInt(query.get('release_year_to') || '-9999', 10)
+  if (release_year_from === -9999 || release_year_to === -9999) {
+    release_year_from = minmax_year.data?.min_year as number
+    release_year_to = minmax_year.data?.max_year as number
+  }
 
   const bookCountObject = useBooksCount({
     genre,
@@ -43,28 +55,36 @@ const BooksPage: React.FC = () => {
           maxWidth: '1600px',
         }}
       >
-        <BooksGrid
-          prevPage={page}
-          booksPerPage={booksPerPage}
-          prevGenre={genre}
-          prevAuthor={author}
-          prevPublisher={publisher}
-          release_year_from={release_year_from}
-          release_year_to={release_year_to}
-        />
-        <Divider sx={{ color: 'success.dark', m: 2 }} />
-        {bookCountObject.isSuccess ? (
-          <Stack spacing={2}>
-            <Pagination
-              onChange={handleChange}
-              count={Math.ceil(bookCountObject.data.count / booksPerPage)}
-              variant="outlined"
-              shape="rounded"
-              page={page}
+        {minmax_year.isSuccess ? (
+          <>
+            <BooksGrid
+              prevPage={page}
+              booksPerPage={booksPerPage}
+              prevGenre={genre}
+              prevAuthor={author}
+              prevPublisher={publisher}
+              release_year_from={release_year_from}
+              release_year_to={release_year_to}
+              min_release_year={min_release_year}
+              max_release_year={max_release_year}
             />
-          </Stack>
+            <Divider sx={{ color: 'success.dark', m: 2 }} />
+            {bookCountObject.isSuccess ? (
+              <Stack spacing={2}>
+                <Pagination
+                  onChange={handleChange}
+                  count={Math.ceil(bookCountObject.data.count / booksPerPage)}
+                  variant="outlined"
+                  shape="rounded"
+                  page={page}
+                />
+              </Stack>
+            ) : (
+              <Loading />
+            )}
+          </>
         ) : (
-          <>czekam</>
+          <Loading />
         )}
       </Box>
     </Box>
