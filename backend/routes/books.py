@@ -1,6 +1,6 @@
 import datetime
 import re
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 from database.db import books_collection
 from models.book import BookModel, CreateBookModel, UpdateBookModel
@@ -8,6 +8,7 @@ from pyisbn import Isbn
 from utils.rating import ratingNumberSum, calculateRating
 from bson.objectid import ObjectId, InvalidId
 from utils.authentication import admin_dependency, user_dependency
+from typing import Annotated
 
 router = APIRouter(
     prefix="/books",
@@ -121,6 +122,20 @@ async def get_min_max_release_years(_: user_dependency):
     )
 
     return {"max_year": max_year, "min_year": min_year}
+
+
+@router.get(
+    "/list",
+    response_description="Get books by isbns list",
+    response_model=list[BookModel],
+)
+async def get_books_by_isbn_list(
+    _: user_dependency, isbn: Annotated[list[str], Query()] = None
+):
+    books = await books_collection.find({"isbn": {"$in": isbn}}).to_list(length=None)
+    if not books:
+        raise HTTPException(status_code=404)
+    return books
 
 
 @router.get("/{isbn}", response_description="Get one book", response_model=BookModel)

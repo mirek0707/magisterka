@@ -5,6 +5,7 @@ export const Routes = {
   RegisterUrl: () => `/register`,
 
   LibraryUrl: () => `/app/library`,
+  ShelfUrl: (shelf_id: string) => `/app/shelf/${shelf_id}`,
   BooksUrl: () => `/app/books`,
   SearchUrl: () => `/app/search`,
   ProfileUrl: () => `/app/profile`,

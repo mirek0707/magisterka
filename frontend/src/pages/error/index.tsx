@@ -2,7 +2,7 @@ import * as React from 'react'
 const ErrorPage: React.FC = () => {
   return (
     <div>
-      <h1>Oops! You seem to be lost.</h1>
+      <h1>Strona nie istnieje lub nie masz do niej dostępu</h1>
     </div>
   )
 }

@@ -9,6 +9,7 @@ import {
   getBooksAuthors,
   getBooksPublishers,
   getBooksMinMaxYears,
+  getBooksByIsbnsList,
 } from './api'
 import {
   BooksPerPageReq,
@@ -26,6 +27,9 @@ export const useBooksPerPage = (data: BooksPerPageReq) =>
 
 export const useBook = (isbn: string) =>
   useReactQuery<Book>(get, getBookPath(isbn))
+
+export const useBooksByIsbnsList = (isbns: string[]) =>
+  useReactQuery<Book[]>(get, getBooksByIsbnsList(isbns))
 
 export const useBooksCount = (data: BooksCountFiltersReq) =>
   useReactQuery<BooksCount>(get, getBooksCount(data))

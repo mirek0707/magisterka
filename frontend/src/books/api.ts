@@ -9,6 +9,13 @@ export const getBooksPerPagePath = (data: BooksPerPageReq) =>
 
 export const getBookPath = (isbn: string) => `${API_ROOT_PATH}/${isbn}`
 
+export const getBooksByIsbnsList = (isbns: string[]) => {
+  const queryParams = { isbn: isbns }
+  return `${API_ROOT_PATH}/list?${qs.stringify(queryParams, {
+    arrayFormat: 'repeat',
+  })}`
+}
+
 export const getBooksCount = (data: BooksCountFiltersReq) =>
   `${API_ROOT_PATH}/count?${qs.stringify(data)}`
 
