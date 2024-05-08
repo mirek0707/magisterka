@@ -8,4 +8,5 @@ export type CarouselItemProps = {
 export type BooksCarouselProps = {
   title?: string
   items: CarouselItemProps[]
+  shelf_id?: string
 }

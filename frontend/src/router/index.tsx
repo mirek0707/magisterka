@@ -6,10 +6,10 @@ import Layout from 'src/layout'
 import BookPage from 'src/pages/book'
 import BooksPage from 'src/pages/books'
 import ErrorPage from 'src/pages/error'
-// import ShelfPage from 'src/pages/shelf'
 import LibraryPage from 'src/pages/library'
 import ProfilePage from 'src/pages/profile'
 import SearchPage from 'src/pages/search'
+import ShelfPage from 'src/pages/shelf'
 import Providers from 'src/providers'
 import { Routes } from 'src/routes'
 
@@ -76,14 +76,14 @@ export const BrowserRouter = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-          // {
-          //   path: Routes.ShelfUrl(':shelf_id'),
-          //   element: (
-          //     <ProtectedRoute>
-          //       <ShelfPage />
-          //     </ProtectedRoute>
-          //   ),
-          // },
+          {
+            path: Routes.ShelfUrl(':shelf_id'),
+            element: (
+              <ProtectedRoute>
+                <ShelfPage />
+              </ProtectedRoute>
+            ),
+          },
           {
             path: Routes.BookUrl(':isbn'),
             element: (

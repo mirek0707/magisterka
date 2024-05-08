@@ -21,6 +21,7 @@ const ShelfComp: React.FC<Props> = ({ shelf }) => {
     <BooksCarousel
       title={shelf.name}
       items={books.data.map(convertBookToCarouselItem)}
+      shelf_id={shelf._id}
     />
   )
 }
