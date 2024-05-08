@@ -1,6 +1,6 @@
 import * as qs from 'qs'
 
-import { BooksPerPageReq, BooksCountFiltersReq } from './types'
+import { BooksPerPageReq, BooksCountFiltersReq, BooksSearchData } from './types'
 
 export const API_ROOT_PATH = '/books'
 
@@ -23,3 +23,5 @@ export const getBooksAuthors = () => `${API_ROOT_PATH}/authors`
 export const getBooksGenres = () => `${API_ROOT_PATH}/genres`
 export const getBooksPublishers = () => `${API_ROOT_PATH}/publishers`
 export const getBooksMinMaxYears = () => `${API_ROOT_PATH}/years`
+export const getBooksSearch = (data: BooksSearchData) =>
+  `${API_ROOT_PATH}/search?${qs.stringify(data)}`

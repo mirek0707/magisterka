@@ -62,3 +62,8 @@ export type BooksMinMaxYears = {
   max_year: number
   min_year: number
 }
+
+export type BooksSearchData = {
+  query: string
+  num_of_books?: number
+}
