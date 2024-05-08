@@ -10,6 +10,8 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { Routes } from 'src/routes'
 
+import AddBookButton from '../addBook'
+
 import { CarouselItemProps } from './types'
 
 const BookCard: React.FC<CarouselItemProps> = (item) => {
@@ -67,6 +69,7 @@ const BookCard: React.FC<CarouselItemProps> = (item) => {
           </Grid>
         </CardContent>
       </CardActionArea>
+      {item.bookAdd && <AddBookButton title={item.title} isbn={item.isbn} />}
     </Card>
   )
 }

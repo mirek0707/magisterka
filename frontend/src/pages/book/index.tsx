@@ -14,6 +14,7 @@ import { Carousel } from 'react-responsive-carousel'
 import { useParams } from 'react-router-dom'
 import { useBook } from 'src/books/rquery'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import AddBookButton from 'src/components/addBook'
 import { Loading } from 'src/components/loading'
 
 import ErrorPage from '../error'
@@ -84,11 +85,18 @@ const BookPage: React.FC = () => {
         </Grid>
         <Typography sx={{ p: 1 }}>Ilość: {book.data.ratings_number}</Typography>
       </Grid>
-      <Grid item xs={9}>
-        <Typography variant="h4">{book.data.title[0]}</Typography>
-        <Typography variant="subtitle1">
-          {book.data.author.join(', ')}
-        </Typography>
+      <Grid item container xs={9}>
+        <Grid item>
+          <Typography variant="h4">{book.data.title[0]}</Typography>
+          <Typography variant="subtitle1">
+            {book.data.author.join(', ')}
+          </Typography>
+        </Grid>
+        <AddBookButton
+          title={book.data.title[0]}
+          isbn={book.data.isbn}
+          onBookPage={true}
+        />
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
           <ListItem>
             <ListItemText primary="ISBN" secondary={book.data.isbn} />

@@ -3,6 +3,7 @@ export type CarouselItemProps = {
   img_src: string
   author: string
   isbn: string
+  bookAdd?: boolean
 }
 
 export type BooksCarouselProps = {

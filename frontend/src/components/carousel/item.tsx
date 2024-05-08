@@ -9,7 +9,7 @@ const BooksCarouselItem: React.FC<BooksCarouselProps> = ({ items }) => {
     <Grid container direction="row" spacing={{ lg: 1, xl: 2 }}>
       {items.map((item: CarouselItemProps, index: number) => (
         <Grid item xs={12 / 8} key={index} className="p-1">
-          <BookCard {...item} />
+          <BookCard {...item} bookAdd={true} />
         </Grid>
       ))}
     </Grid>
