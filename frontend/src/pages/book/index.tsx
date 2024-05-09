@@ -85,194 +85,201 @@ const BookPage: React.FC = () => {
         </Grid>
         <Typography sx={{ p: 1 }}>Ilość: {book.data.ratings_number}</Typography>
       </Grid>
-      <Grid item container xs={9}>
+      <Grid item container xs={9} direction={'column'}>
         <Grid item>
           <Typography variant="h4">{book.data.title[0]}</Typography>
           <Typography variant="subtitle1">
             {book.data.author.join(', ')}
           </Typography>
         </Grid>
-        <AddBookButton
-          title={book.data.title[0]}
-          isbn={book.data.isbn}
-          onBookPage={true}
-        />
-        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-          <ListItem>
-            <ListItemText primary="ISBN" secondary={book.data.isbn} />
-          </ListItem>
-          {book.data.title[1] && (
+        <Grid item sx={{ p: 1, pl: 0 }}>
+          <AddBookButton
+            title={book.data.title[0]}
+            isbn={book.data.isbn}
+            onBookPage={true}
+          />
+        </Grid>
+        <Grid item>
+          <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             <ListItem>
-              <ListItemText
-                primary="Inne tytuły"
-                secondary={book.data.title.slice(1).join(', ')}
-              />
+              <ListItemText primary="ISBN" secondary={book.data.isbn} />
             </ListItem>
-          )}
-          {book.data.genre !== '' && (
-            <ListItem>
-              <ListItemText primary="Gatunek" secondary={book.data.genre} />
-            </ListItem>
-          )}
-          {book.data.pages && book.data.pages[0] && (
-            <ListItem>
-              <ListItemText
-                primary="Ilość stron"
-                secondary={book.data.pages.join(', ')}
-              />
-            </ListItem>
-          )}
-          {book.data.publisher && book.data.publisher[0] && (
-            <ListItem>
-              <ListItemText
-                primary="Wydawnictwo"
-                secondary={book.data.publisher.join(', ')}
-              />
-            </ListItem>
-          )}
-          {book.data.original_title && book.data.original_title[0] && (
-            <ListItem>
-              <ListItemText
-                primary="Oryginalny tytuł"
-                secondary={book.data.original_title.join(', ')}
-              />
-            </ListItem>
-          )}
-          {(book.data.release_date && book.data.release_date[0] && (
-            <ListItem>
-              <ListItemText
-                primary="Data wydania"
-                secondary={book.data.release_date
-                  .map((date) => moment(date).format('L'))
-                  .join(' lub ')}
-              />
-            </ListItem>
-          )) ||
-            (book.data.release_year && book.data.release_year[0] && (
+            {book.data.title[1] && (
               <ListItem>
                 <ListItemText
-                  primary="Rok wydania"
-                  secondary={book.data.release_year.join(' lub ')}
-                />
-              </ListItem>
-            ))}
-          {book.data.polish_release_date &&
-            book.data.polish_release_date[0] && (
-              <ListItem>
-                <ListItemText
-                  primary="Polska data wydania"
-                  secondary={book.data.polish_release_date
-                    .map((date) => moment(date).locale('pl').format('L'))
-                    .join(' lub ')}
+                  primary="Inne tytuły"
+                  secondary={book.data.title.slice(1).join(', ')}
                 />
               </ListItem>
             )}
-          {book.data.description !== '' && (
-            <ListItem>
-              <ListItemText primary="Opis" secondary={book.data.description} />
-            </ListItem>
-          )}
-          {(book.data.rating_lc || book.data.rating_lc === 0) && (
-            <ListItem
-              sx={{
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            >
-              <ListItemText primary="Ocena na lubimyczytac.pl" />
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="flex-start"
-                sx={{ p: 2 }}
-              >
-                <Rating
-                  name="rating"
-                  value={book.data.rating_lc}
-                  precision={0.1}
-                  readOnly
-                  max={10}
+            {book.data.genre !== '' && (
+              <ListItem>
+                <ListItemText primary="Gatunek" secondary={book.data.genre} />
+              </ListItem>
+            )}
+            {book.data.pages && book.data.pages[0] && (
+              <ListItem>
+                <ListItemText
+                  primary="Ilość stron"
+                  secondary={book.data.pages.join(', ')}
                 />
-                <Box
-                  className="css-83ijpv-MuiTypography-root"
-                  sx={{ ml: 1, fontSize: '1.05rem' }}
-                >
-                  {`${book.data.rating_lc?.toFixed(2)}, ilość: ${
-                    book.data.ratings_lc_number
-                  }`}
-                </Box>
-              </Grid>
-            </ListItem>
-          )}
-          {(book.data.rating_gr || book.data.rating_gr === 0) && (
-            <ListItem
-              sx={{
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            >
-              <ListItemText primary="Ocena na goodreads.com" />
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="flex-start"
-                sx={{ p: 2 }}
-              >
-                <Rating
-                  name="rating"
-                  value={book.data.rating_gr}
-                  precision={0.1}
-                  readOnly
+              </ListItem>
+            )}
+            {book.data.publisher && book.data.publisher[0] && (
+              <ListItem>
+                <ListItemText
+                  primary="Wydawnictwo"
+                  secondary={book.data.publisher.join(', ')}
                 />
-                <Box
-                  className="css-83ijpv-MuiTypography-root"
-                  sx={{ ml: 1, fontSize: '1.05rem' }}
-                >
-                  {`${book.data.rating_gr?.toFixed(2)}, ilość: ${
-                    book.data.ratings_gr_number
-                  }`}
-                </Box>
-              </Grid>
-            </ListItem>
-          )}
-          {(book.data.rating_tk || book.data.rating_tk === 0) && (
-            <ListItem
-              sx={{
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            >
-              <ListItemText primary="Ocena na taniaksiazka.pl" />
-              <Grid
-                container
-                spacing={2}
-                direction="row"
-                alignItems="flex-start"
-                sx={{ p: 2 }}
-              >
-                <Rating
-                  name="rating"
-                  value={book.data.rating_tk}
-                  precision={0.1}
-                  readOnly
+              </ListItem>
+            )}
+            {book.data.original_title && book.data.original_title[0] && (
+              <ListItem>
+                <ListItemText
+                  primary="Oryginalny tytuł"
+                  secondary={book.data.original_title.join(', ')}
                 />
-                <Box
-                  className="css-83ijpv-MuiTypography-root"
-                  sx={{ ml: 1, fontSize: '1.05rem' }}
+              </ListItem>
+            )}
+            {(book.data.release_date && book.data.release_date[0] && (
+              <ListItem>
+                <ListItemText
+                  primary="Data wydania"
+                  secondary={book.data.release_date
+                    .map((date) => moment(date).format('L'))
+                    .join(' lub ')}
+                />
+              </ListItem>
+            )) ||
+              (book.data.release_year && book.data.release_year[0] && (
+                <ListItem>
+                  <ListItemText
+                    primary="Rok wydania"
+                    secondary={book.data.release_year.join(' lub ')}
+                  />
+                </ListItem>
+              ))}
+            {book.data.polish_release_date &&
+              book.data.polish_release_date[0] && (
+                <ListItem>
+                  <ListItemText
+                    primary="Polska data wydania"
+                    secondary={book.data.polish_release_date
+                      .map((date) => moment(date).locale('pl').format('L'))
+                      .join(' lub ')}
+                  />
+                </ListItem>
+              )}
+            {book.data.description !== '' && (
+              <ListItem>
+                <ListItemText
+                  primary="Opis"
+                  secondary={book.data.description}
+                />
+              </ListItem>
+            )}
+            {(book.data.rating_lc || book.data.rating_lc === 0) && (
+              <ListItem
+                sx={{
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <ListItemText primary="Ocena na lubimyczytac.pl" />
+                <Grid
+                  container
+                  spacing={2}
+                  direction="row"
+                  alignItems="flex-start"
+                  sx={{ p: 2 }}
                 >
-                  {`${book.data.rating_tk?.toFixed(2)}, ilość: ${
-                    book.data.ratings_tk_number
-                  }`}
-                </Box>
-              </Grid>
-            </ListItem>
-          )}
-        </List>
+                  <Rating
+                    name="rating"
+                    value={book.data.rating_lc}
+                    precision={0.1}
+                    readOnly
+                    max={10}
+                  />
+                  <Box
+                    className="css-83ijpv-MuiTypography-root"
+                    sx={{ ml: 1, fontSize: '1.05rem' }}
+                  >
+                    {`${book.data.rating_lc?.toFixed(2)}, ilość: ${
+                      book.data.ratings_lc_number
+                    }`}
+                  </Box>
+                </Grid>
+              </ListItem>
+            )}
+            {(book.data.rating_gr || book.data.rating_gr === 0) && (
+              <ListItem
+                sx={{
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <ListItemText primary="Ocena na goodreads.com" />
+                <Grid
+                  container
+                  spacing={2}
+                  direction="row"
+                  alignItems="flex-start"
+                  sx={{ p: 2 }}
+                >
+                  <Rating
+                    name="rating"
+                    value={book.data.rating_gr}
+                    precision={0.1}
+                    readOnly
+                  />
+                  <Box
+                    className="css-83ijpv-MuiTypography-root"
+                    sx={{ ml: 1, fontSize: '1.05rem' }}
+                  >
+                    {`${book.data.rating_gr?.toFixed(2)}, ilość: ${
+                      book.data.ratings_gr_number
+                    }`}
+                  </Box>
+                </Grid>
+              </ListItem>
+            )}
+            {(book.data.rating_tk || book.data.rating_tk === 0) && (
+              <ListItem
+                sx={{
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <ListItemText primary="Ocena na taniaksiazka.pl" />
+                <Grid
+                  container
+                  spacing={2}
+                  direction="row"
+                  alignItems="flex-start"
+                  sx={{ p: 2 }}
+                >
+                  <Rating
+                    name="rating"
+                    value={book.data.rating_tk}
+                    precision={0.1}
+                    readOnly
+                  />
+                  <Box
+                    className="css-83ijpv-MuiTypography-root"
+                    sx={{ ml: 1, fontSize: '1.05rem' }}
+                  >
+                    {`${book.data.rating_tk?.toFixed(2)}, ilość: ${
+                      book.data.ratings_tk_number
+                    }`}
+                  </Box>
+                </Grid>
+              </ListItem>
+            )}
+          </List>
+        </Grid>
       </Grid>
     </Grid>
   )

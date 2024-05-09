@@ -1,5 +1,5 @@
-import AddCircleIcon from '@mui/icons-material/AddCircle'
-import { Typography, Modal, Box, IconButton } from '@mui/material'
+import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+import { Typography, Modal, Box, IconButton, Tooltip } from '@mui/material'
 import * as React from 'react'
 import ErrorPage from 'src/pages/error'
 import { useUserShelves } from 'src/shelves/rquery'
@@ -42,36 +42,39 @@ const AddBookButton: React.FC<Props> = ({
   }
   return (
     <>
-      <IconButton
-        onClick={handleOpen}
-        sx={
-          onBookPage
-            ? {
-                p: 0,
-                m: 1,
-                ml: 2,
-                backgroundColor: 'black',
-                '&:hover': {
-                  backgroundColor: 'black',
-                  transform: 'scale(1.2)',
-                },
-              }
-            : {
-                p: 0,
-                backgroundColor: 'black',
-                '&:hover': {
-                  backgroundColor: 'white',
-                  transform: 'scale(1.15)',
-                },
-              }
-        }
-        size="large"
-        color="inherit"
-        style={onBookPage ? {} : { position: 'absolute', top: 5, right: 5 }}
-        className="max-h-6"
-      >
-        <AddCircleIcon color="primary" />
-      </IconButton>
+      <Tooltip title="Dodaj na półki" placement="bottom">
+        <IconButton
+          onClick={handleOpen}
+          sx={
+            onBookPage
+              ? {
+                  p: 0,
+                  borderRadius: 1,
+                  backgroundColor: 'text.primary',
+                  '&:hover': {
+                    backgroundColor: 'text.primary',
+                    transform: 'scale(1.2)',
+                  },
+                }
+              : {
+                  p: 0,
+                  borderRadius: 1,
+                  backgroundColor: 'text.primary',
+                  '&:hover': {
+                    backgroundColor: 'background.paper',
+                    transform: 'scale(1.15)',
+                  },
+                }
+          }
+          color="inherit"
+          style={onBookPage ? {} : { position: 'absolute', top: 5, right: 5 }}
+        >
+          <AddBoxRoundedIcon
+            color="primary"
+            style={onBookPage ? { fontSize: 35 } : { fontSize: 27 }}
+          />
+        </IconButton>
+      </Tooltip>
       <Modal
         open={open}
         onClose={handleClose}

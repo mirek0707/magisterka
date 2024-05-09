@@ -1,10 +1,13 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import MenuIcon from '@mui/icons-material/Menu'
+import { Grid } from '@mui/material'
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
 import * as React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { drawerWidth } from 'src/layout/drawer'
 
 import SearchBar from './searchBar'
@@ -16,6 +19,7 @@ interface LayoutBarProps extends MuiAppBarProps {
 }
 
 const LayoutBar: React.FC<LayoutBarProps> = ({ open, handleDrawerOpen }) => {
+  const navigate = useNavigate()
   return (
     <AppBar position="fixed" open={open}>
       <Toolbar>
@@ -26,14 +30,49 @@ const LayoutBar: React.FC<LayoutBarProps> = ({ open, handleDrawerOpen }) => {
           edge="start"
           sx={{
             marginRight: 5,
+            borderRadius: 0,
+
             ...(open && { display: 'none' }),
           }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h4" noWrap component="div" sx={{ flexGrow: 1 }}>
-          NAZWA APLIKACJI
-        </Typography>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          <Grid item>
+            <IconButton
+              onClick={() => {
+                navigate(-1)
+              }}
+              color="inherit"
+              edge="start"
+              sx={{
+                borderRadius: 0,
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+          </Grid>
+          <Grid item>
+            <IconButton
+              onClick={() => {
+                navigate(1)
+              }}
+              color="inherit"
+              edge="start"
+              sx={{
+                borderRadius: 0,
+              }}
+            >
+              <ArrowForwardIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
         <SearchBar />
         <UserMenu />
       </Toolbar>
