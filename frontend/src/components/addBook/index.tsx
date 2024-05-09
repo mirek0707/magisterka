@@ -12,11 +12,24 @@ interface Props {
   title: string
   isbn: string
   onBookPage?: boolean
+  refetchShelf?: () => void
 }
-const AddBookButton: React.FC<Props> = ({ title, isbn, onBookPage }) => {
+const AddBookButton: React.FC<Props> = ({
+  title,
+  isbn,
+  onBookPage,
+  refetchShelf,
+}) => {
   const [open, setOpen] = React.useState(false)
+
   const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleClose = () => {
+    setOpen(false)
+    shelves.refetch()
+    if (refetchShelf !== undefined) {
+      refetchShelf()
+    }
+  }
 
   const user = useUserSession()
   const shelves = useUserShelves(user.data?.id as string)

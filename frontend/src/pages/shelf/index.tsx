@@ -12,6 +12,10 @@ const ShelfPage: React.FC = () => {
   const user = useUserSession()
   const shelf = useShelf(user.data?.id as string, shelf_id)
 
+  const refetchShelf = () => {
+    shelf.refetch()
+  }
+
   if (user.isError || user.isIdle || shelf.isError || shelf.isIdle) {
     return <ErrorPage />
   }
@@ -37,7 +41,15 @@ const ShelfPage: React.FC = () => {
           Półka <em>{shelf.data.name}</em>
         </Typography>
         <Divider sx={{ color: 'success.dark', m: 2 }} />
-        <BooksOnShelf isbns={shelf.data.books} />
+        {shelf.data.books.length ? (
+          <BooksOnShelf
+            isbns={shelf.data.books}
+            shelfId={shelf.data._id}
+            refetchShelf={refetchShelf}
+          />
+        ) : (
+          <>Półka pusta, dodaj do niej książki</>
+        )}
       </Box>
     </Box>
   )

@@ -4,6 +4,7 @@ export type CarouselItemProps = {
   author: string
   isbn: string
   bookAdd?: boolean
+  refetchShelf?: () => void
 }
 
 export type BooksCarouselProps = {

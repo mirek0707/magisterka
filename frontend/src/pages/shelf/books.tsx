@@ -10,9 +10,10 @@ import { Routes } from 'src/routes'
 interface Props {
   isbns: string[]
   shelfId: string
+  refetchShelf: () => void
 }
 
-const BooksOnShelf: React.FC<Props> = ({ isbns, shelfId }) => {
+const BooksOnShelf: React.FC<Props> = ({ isbns, shelfId, refetchShelf }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const query = new URLSearchParams(location.search)
@@ -35,6 +36,7 @@ const BooksOnShelf: React.FC<Props> = ({ isbns, shelfId }) => {
     <>
       <BooksGrid
         books={books.data.slice(booksPerPage * (page - 1), booksPerPage * page)}
+        refetchShelf={refetchShelf}
       />
       <Divider sx={{ color: 'success.dark', m: 2 }} />
       <Stack spacing={2}>

@@ -69,7 +69,13 @@ const BookCard: React.FC<CarouselItemProps> = (item) => {
           </Grid>
         </CardContent>
       </CardActionArea>
-      {item.bookAdd && <AddBookButton title={item.title} isbn={item.isbn} />}
+      {item.bookAdd && (
+        <AddBookButton
+          title={item.title}
+          isbn={item.isbn}
+          refetchShelf={item?.refetchShelf}
+        />
+      )}
     </Card>
   )
 }
