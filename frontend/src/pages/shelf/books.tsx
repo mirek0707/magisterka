@@ -5,16 +5,19 @@ import { useBooksByIsbnsList } from 'src/books/rquery'
 import BooksGrid from 'src/components/booksGrid'
 import { Loading } from 'src/components/loading'
 import ErrorPage from 'src/pages/error'
+import { Routes } from 'src/routes'
 
 interface Props {
   isbns: string[]
+  shelfId: string
 }
 
-const BooksOnShelf: React.FC<Props> = ({ isbns }) => {
+const BooksOnShelf: React.FC<Props> = ({ isbns, shelfId }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const query = new URLSearchParams(location.search)
   const page = parseInt(query.get('page') || '1', 10)
+
   const books = useBooksByIsbnsList(isbns)
 
   if (books.isError || books.isIdle) {
@@ -25,7 +28,7 @@ const BooksOnShelf: React.FC<Props> = ({ isbns }) => {
   }
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     query.set('page', value.toString() as string)
-    navigate(`/app/books?${query.toString()}`)
+    navigate(Routes.ShelfUrl(shelfId) + `?${query.toString()}`)
   }
   const booksPerPage = 60
   return (
@@ -37,7 +40,7 @@ const BooksOnShelf: React.FC<Props> = ({ isbns }) => {
       <Stack spacing={2}>
         <Pagination
           onChange={handleChange}
-          count={Math.ceil(books.data.length)}
+          count={Math.ceil(books.data.length / booksPerPage)}
           variant="outlined"
           shape="rounded"
           page={page}
