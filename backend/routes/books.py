@@ -140,6 +140,32 @@ async def get_books_by_isbn_list(
 
 
 @router.get(
+    "/ftsearch",
+    response_description="Full-text search in description, title, original_title, author",
+    response_model=list[BookModel],
+)
+async def full_text_search_book(_: user_dependency, query: str, num_of_books: int = 30):
+    if not query:
+        raise HTTPException(status_code=422, detail="Query parameter cannot be empty")
+
+    if len(query) < 3:
+        raise HTTPException(
+            status_code=422, detail="Query parameter must have at least 3 characters"
+        )
+
+    projection = {"score": {"$meta": "textScore"}}
+    query = f'"{query}"'
+    books = await books_collection.find(
+        {"$text": {"$search": query}}, projection=projection
+    ).to_list(length=None)
+
+    books = sorted(books, key=lambda x: x["score"], reverse=True)
+    books = books[:num_of_books]
+
+    return books
+
+
+@router.get(
     "/search",
     response_description="Search by author, title or original_title",
     response_model=list[BookModel],
@@ -242,32 +268,6 @@ async def get_books_per_page(
         .limit(limit)
         .to_list(length=None)
     )
-    return books
-
-
-@router.post(
-    "/ftsearch",
-    response_description="Full-text search in description, title, original_title, author",
-    response_model=list[BookModel],
-)
-async def full_text_search_book(_: user_dependency, query: str, num_of_books: int = 30):
-    if not query:
-        raise HTTPException(status_code=422, detail="Query parameter cannot be empty")
-
-    if len(query) < 3:
-        raise HTTPException(
-            status_code=422, detail="Query parameter must have at least 3 characters"
-        )
-
-    projection = {"score": {"$meta": "textScore"}}
-    query = f'"{query}"'
-    books = await books_collection.find(
-        {"$text": {"$search": query}}, projection=projection
-    ).to_list(length=None)
-
-    books = sorted(books, key=lambda x: x["score"], reverse=True)
-    books = books[:num_of_books]
-
     return books
 
 

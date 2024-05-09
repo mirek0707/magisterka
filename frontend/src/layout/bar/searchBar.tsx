@@ -28,6 +28,7 @@ const SearchBar: React.FC = () => {
               pathname: Routes.SearchUrl(),
               search: createSearchParams({
                 q: `${searchInputVal}`,
+                fts: '0',
               }).toString(),
             })
           }

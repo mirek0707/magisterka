@@ -25,3 +25,5 @@ export const getBooksPublishers = () => `${API_ROOT_PATH}/publishers`
 export const getBooksMinMaxYears = () => `${API_ROOT_PATH}/years`
 export const getBooksSearch = (data: BooksSearchData) =>
   `${API_ROOT_PATH}/search?${qs.stringify(data)}`
+export const getBooksSearchFt = (data: BooksSearchData) =>
+  `${API_ROOT_PATH}/ftsearch?${qs.stringify(data)}`

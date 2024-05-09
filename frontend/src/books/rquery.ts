@@ -11,6 +11,7 @@ import {
   getBooksMinMaxYears,
   getBooksByIsbnsList,
   getBooksSearch,
+  getBooksSearchFt,
 } from './api'
 import {
   BooksPerPageReq,
@@ -50,3 +51,6 @@ export const useBooksMinMaxYears = () =>
 
 export const useBooksSearch = (data: BooksSearchData) =>
   useReactQuery<Book[]>(get, getBooksSearch(data))
+
+export const useBooksSearchFt = (data: BooksSearchData) =>
+  useReactQuery<Book[]>(get, getBooksSearchFt(data))
