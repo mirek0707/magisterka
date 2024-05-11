@@ -8,6 +8,7 @@ export const ErrorMessages = {
   passwordValidationFail:
     'Hasło musi zawierać małą, wielką literę, cyfrę i znak specjalny',
   usernameLength: 'Nazwa użytkownika musi zawierać od 3 do 12 znaków',
+  urlNotValid: 'Nieprawidłowy adres URL',
 }
 
 const passwordValidation = new RegExp(
@@ -29,3 +30,7 @@ export const GenericPasswordConstraint = z
 export const GenericEmailConstraint = z
   .string({ required_error: ErrorMessages.required })
   .email({ message: ErrorMessages.email })
+
+export const GenericURLConstraint = z
+  .string({ required_error: ErrorMessages.required })
+  .url({ message: ErrorMessages.urlNotValid })

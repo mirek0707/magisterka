@@ -1,12 +1,15 @@
 import {
   Box,
+  Button,
   CssBaseline,
+  Grid,
   List,
   ListItem,
   ListItemText,
   Typography,
 } from '@mui/material'
 import * as React from 'react'
+import ImportLCButton from 'src/components/importLC'
 import { Loading } from 'src/components/loading'
 import { useUserSession } from 'src/user/rquery'
 
@@ -59,6 +62,19 @@ const ProfilePage: React.FC = () => {
             />
           </ListItem>
         </List>
+        <Grid
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+        >
+          <Grid item sx={{ p: 1, pl: 0 }}>
+            <ImportLCButton />
+          </Grid>
+          <Grid item sx={{ p: 1, pl: 0 }}>
+            <Button variant="contained">Importuj dane z goodreads.com</Button>
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   )

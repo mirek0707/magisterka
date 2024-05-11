@@ -140,12 +140,20 @@ async def run_lc_shelves_spider(
                 isbn=isbn,
                 title=[book["title"]],
                 author=[book["author"]],
-                pages=[book["pages"]],
-                publisher=[book["publisher"]],
-                original_title=[book["original_title"]],
-                release_date=[book["release_date"]],
+                pages=[] if book["pages"] is None else [book["pages"]],
+                publisher=[] if book["publisher"] is None else [book["publisher"]],
+                original_title=(
+                    [] if book["original_title"] is None else [book["original_title"]]
+                ),
+                release_date=(
+                    [] if book["release_date"] is None else [book["release_date"]]
+                ),
                 release_year=[],
-                polish_release_date=[book["polish_release_date"]],
+                polish_release_date=(
+                    []
+                    if book["polish_release_date"] is None
+                    else [book["polish_release_date"]]
+                ),
                 rating_lc=book["rating_lc"],
                 ratings_lc_number=book["ratings_lc_number"],
                 rating_gr=None,
@@ -156,7 +164,7 @@ async def run_lc_shelves_spider(
                 ratings_number=book["ratings_lc_number"],
                 genre=book["genre"],
                 description=book["description"],
-                img_src=[book["img_src"]],
+                img_src=[] if book["img_src"] is None else [book["img_src"]],
             )
             result = await books_collection.insert_one(
                 new_book.model_dump(exclude=["id"])

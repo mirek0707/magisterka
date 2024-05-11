@@ -4,3 +4,7 @@ export type Shelf = {
   is_default: boolean
   name: string
 }
+
+export type ImportLCReq = {
+  url: string
+}
