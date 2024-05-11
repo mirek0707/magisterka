@@ -1,4 +1,4 @@
-import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded'
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd'
 import { Typography, Modal, Box, IconButton, Tooltip } from '@mui/material'
 import * as React from 'react'
 import ErrorPage from 'src/pages/error'
@@ -69,7 +69,7 @@ const AddBookButton: React.FC<Props> = ({
           color="inherit"
           style={onBookPage ? {} : { position: 'absolute', top: 5, right: 5 }}
         >
-          <AddBoxRoundedIcon
+          <LibraryAddIcon
             color="primary"
             style={onBookPage ? { fontSize: 35 } : { fontSize: 27 }}
           />

@@ -132,7 +132,6 @@ async def get_min_max_release_years(_: user_dependency):
 async def get_books_by_isbn_list(
     _: user_dependency, isbn: Annotated[list[str], Query()] = None
 ):
-    print(isbn)
     books = await books_collection.find({"isbn": {"$in": isbn}}).to_list(length=None)
     if not books:
         raise HTTPException(status_code=404)
