@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   CssBaseline,
   Grid,
   List,
@@ -9,6 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import * as React from 'react'
+import ImportGRButton from 'src/components/importGR'
 import ImportLCButton from 'src/components/importLC'
 import { Loading } from 'src/components/loading'
 import { useUserSession } from 'src/user/rquery'
@@ -72,7 +72,7 @@ const ProfilePage: React.FC = () => {
             <ImportLCButton />
           </Grid>
           <Grid item sx={{ p: 1, pl: 0 }}>
-            <Button variant="contained">Importuj dane z goodreads.com</Button>
+            <ImportGRButton />
           </Grid>
         </Grid>
       </Box>

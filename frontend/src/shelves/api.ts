@@ -16,3 +16,6 @@ export const patchDelBookToShelf = (user_id: string, isbn: string) =>
 
 export const putImportLC = (data: ImportLCReq) =>
   put(`${API_ROOT_PATH}/importLC?${qs.stringify(data)}`)
+
+export const putImportGR = (data: FormData) =>
+  put(`${API_ROOT_PATH}/importGR`, data)
