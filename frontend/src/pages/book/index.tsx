@@ -15,12 +15,15 @@ import { useParams } from 'react-router-dom'
 import { useBook } from 'src/books/rquery'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import AddBookButton from 'src/components/addBook'
+import DeleteBook from 'src/components/deleteBook'
 import { Loading } from 'src/components/loading'
+import { useUserSession } from 'src/user/rquery'
 
 import ErrorPage from '../error'
 const BookPage: React.FC = () => {
   moment.locale('pl')
   const { isbn = '' } = useParams()
+  const user = useUserSession()
   const book = useBook(isbn)
   if (book.isError || book.isIdle) {
     return <ErrorPage />
@@ -92,12 +95,25 @@ const BookPage: React.FC = () => {
             {book.data.author.join(', ')}
           </Typography>
         </Grid>
-        <Grid item sx={{ p: 1, pl: 0 }}>
-          <AddBookButton
-            title={book.data.title[0]}
-            isbn={book.data.isbn}
-            onBookPage={true}
-          />
+        <Grid
+          item
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+        >
+          <Grid item sx={{ p: 1, pl: 0 }}>
+            <AddBookButton
+              title={book.data.title[0]}
+              isbn={book.data.isbn}
+              onBookPage={true}
+            />
+          </Grid>
+          {user.data?.role === 'ADMIN' && (
+            <Grid item sx={{ p: 1, pl: 0 }}>
+              <DeleteBook isbn={book.data.isbn} />
+            </Grid>
+          )}
         </Grid>
         <Grid item>
           <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
