@@ -56,7 +56,7 @@ const BookPage: React.FC = () => {
             {(book.data.img_src && book.data.img_src.length
               ? book.data.img_src
               : [
-                  'https://ih1.redbubble.net/image.1893341687.8294/fposter,small,wall_texture,product,750x1000.jpg',
+                  'https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=',
                 ]
             ).map((src: string, index: number) => (
               <Box key={index} sx={{ maxWidth: 280 }}>
