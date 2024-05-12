@@ -8,6 +8,13 @@ import { Routes } from 'src/routes'
 const SearchBar: React.FC = () => {
   const navigate = useNavigate()
   const [searchInput, setSearchInput] = React.useState('')
+
+  const [isValid, setIsValid] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsValid(searchInput.length > 2)
+  }, [searchInput])
+
   return (
     <Search>
       <SearchIconWrapper>
@@ -21,7 +28,7 @@ const SearchBar: React.FC = () => {
         }}
         value={searchInput}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && isValid) {
             const searchInputVal = searchInput
             setSearchInput('')
             navigate({

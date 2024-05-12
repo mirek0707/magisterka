@@ -1,6 +1,7 @@
 import {
   Divider,
   FormControlLabel,
+  Grid,
   Switch,
   TextField,
   Tooltip,
@@ -34,10 +35,11 @@ const SearchPage = () => {
     setCurrentInput(newSearchInput)
   }, [query])
 
-  // React.useEffect(() => {
-  //   console.log(isFts ? '1' : '0')
-  //   query.set('fts', isFts ? '1' : '0')
-  // }, [isFts])
+  const [isValid, setIsValid] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsValid(currentInput.length > 2)
+  }, [currentInput])
 
   return (
     <Box
@@ -46,42 +48,50 @@ const SearchPage = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <Box>
-        <Tooltip title="Pełne wyszukiwanie polega na przeprowadzeniu wyszukiwania pełnotekstowego na tytułach, autorach, wydawnictwach oraz opisach książek. Może wydłużyć czas wyszukiwania!">
-          <FormControlLabel
-            control={
-              <Switch
-                value={isFts}
-                onChange={() => {
-                  setIsFts(!isFts)
-                }}
-              />
-            }
-            label="Pełne wyszukiwanie"
+      <Grid container spacing={5} justifyContent={'center'}>
+        <Grid item>
+          <Tooltip title="Pełne wyszukiwanie polega na przeprowadzeniu wyszukiwania pełnotekstowego na tytułach, autorach, wydawnictwach oraz opisach książek. Może wydłużyć czas wyszukiwania!">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isFts}
+                  value={isFts}
+                  onChange={() => {
+                    setIsFts(!isFts)
+                  }}
+                />
+              }
+              label="Pełne wyszukiwanie"
+              labelPlacement="bottom"
+            />
+          </Tooltip>
+        </Grid>
+        <Grid item>
+          <TextField
+            id="book-search-input"
+            label="Szukaj..."
+            variant="outlined"
+            value={currentInput}
+            error={!isValid}
+            onChange={(e) => {
+              setCurrentInput(e.target.value)
+            }}
+            helperText={!isValid ? 'Wpisz przynajmniej 3 znaki' : ''}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && isValid) {
+                const searchInputVal = currentInput
+                navigate({
+                  pathname: Routes.SearchUrl(),
+                  search: createSearchParams({
+                    q: `${searchInputVal}`,
+                    fts: `${isFts ? 1 : 0}`,
+                  }).toString(),
+                })
+              }
+            }}
           />
-        </Tooltip>
-        <TextField
-          id="book-search-input"
-          label="Szukaj..."
-          variant="outlined"
-          value={currentInput}
-          onChange={(e) => {
-            setCurrentInput(e.target.value)
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const searchInputVal = currentInput
-              navigate({
-                pathname: Routes.SearchUrl(),
-                search: createSearchParams({
-                  q: `${searchInputVal}`,
-                  fts: `${isFts ? 1 : 0}`,
-                }).toString(),
-              })
-            }
-          }}
-        />
-      </Box>
+        </Grid>
+      </Grid>
 
       {searchInput !== '' ? (
         <>
