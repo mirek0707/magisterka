@@ -1,3 +1,4 @@
+import { Tooltip } from '@mui/material'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -14,26 +15,28 @@ const LayoutDrawerNavItem: React.FC<ListItemProps> = ({
 }) => {
   return (
     <ListItem disablePadding sx={{ display: 'block' }}>
-      <ListItemButton
-        component={NavLink}
-        to={path}
-        sx={{
-          minHeight: 48,
-          justifyContent: open ? 'initial' : 'center',
-          px: 2.5,
-        }}
-      >
-        <ListItemIcon
+      <Tooltip title={open ? '' : name} placement="right">
+        <ListItemButton
+          component={NavLink}
+          to={path}
           sx={{
-            minWidth: 0,
-            mr: open ? 3 : 'auto',
-            justifyContent: 'center',
+            minHeight: 48,
+            justifyContent: open ? 'initial' : 'center',
+            px: 2.5,
           }}
         >
-          {icon}
-        </ListItemIcon>
-        <ListItemText primary={name} sx={{ opacity: open ? 1 : 0 }} />
-      </ListItemButton>
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: open ? 3 : 'auto',
+              justifyContent: 'center',
+            }}
+          >
+            {icon}
+          </ListItemIcon>
+          <ListItemText primary={name} sx={{ opacity: open ? 1 : 0 }} />
+        </ListItemButton>
+      </Tooltip>
     </ListItem>
   )
 }
