@@ -73,6 +73,7 @@ const SearchPage = () => {
             variant="outlined"
             value={currentInput}
             error={!isValid}
+            autoFocus
             onChange={(e) => {
               setCurrentInput(e.target.value)
             }}

@@ -1,7 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import MenuIcon from '@mui/icons-material/Menu'
-import { Grid } from '@mui/material'
+import { Grid, Tooltip } from '@mui/material'
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
@@ -45,32 +45,36 @@ const LayoutBar: React.FC<LayoutBarProps> = ({ open, handleDrawerOpen }) => {
           }}
         >
           <Grid item>
-            <IconButton
-              onClick={() => {
-                navigate(-1)
-              }}
-              color="inherit"
-              edge="start"
-              sx={{
-                borderRadius: 0,
-              }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
+            <Tooltip enterDelay={400} title="Wróć">
+              <IconButton
+                onClick={() => {
+                  navigate(-1)
+                }}
+                color="inherit"
+                edge="start"
+                sx={{
+                  borderRadius: 0,
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
           </Grid>
           <Grid item>
-            <IconButton
-              onClick={() => {
-                navigate(1)
-              }}
-              color="inherit"
-              edge="start"
-              sx={{
-                borderRadius: 0,
-              }}
-            >
-              <ArrowForwardIcon />
-            </IconButton>
+            <Tooltip enterDelay={400} title="Do przodu">
+              <IconButton
+                onClick={() => {
+                  navigate(1)
+                }}
+                color="inherit"
+                edge="start"
+                sx={{
+                  borderRadius: 0,
+                }}
+              >
+                <ArrowForwardIcon />
+              </IconButton>
+            </Tooltip>
           </Grid>
         </Grid>
         <SearchBar />

@@ -44,7 +44,7 @@ const UserMenu: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title="Open settings">
+      <Tooltip title="Ustawienia użytkownika">
         <IconButton
           onClick={handleOpenUserMenu}
           sx={{ p: 0 }}
