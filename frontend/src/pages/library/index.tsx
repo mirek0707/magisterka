@@ -8,6 +8,9 @@ import ErrorPage from '../error'
 const LibraryPage: React.FC = () => {
   const user = useUserSession()
   const shelves = useUserShelves(user.data?.id as string)
+  const refetch = () => {
+    shelves.refetch()
+  }
 
   if (user.isError || user.isIdle || shelves.isError || shelves.isIdle) {
     return <ErrorPage />
@@ -18,7 +21,7 @@ const LibraryPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-100 space-y-5">
-      <Library shelves={shelves.data} />
+      <Library shelves={shelves.data} refetch={refetch} />
     </div>
   )
 }

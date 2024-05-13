@@ -1,5 +1,5 @@
 import * as qs from 'qs'
-import { patch, put } from 'src/api'
+import { patch, put, del } from 'src/api'
 
 import { ImportLCReq } from './types'
 
@@ -19,3 +19,6 @@ export const putImportLC = (data: ImportLCReq) =>
 
 export const putImportGR = (data: FormData) =>
   put(`${API_ROOT_PATH}/importGR`, data)
+
+export const deleteShelf = (shelf_id: string) =>
+  del(`${API_ROOT_PATH}/${shelf_id}`)

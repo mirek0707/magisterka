@@ -8,8 +8,9 @@ import BooksCarousel from '../carousel'
 import { Loading } from '../loading'
 interface Props {
   shelf: Shelf
+  refetch: () => void
 }
-const ShelfComp: React.FC<Props> = ({ shelf }) => {
+const ShelfComp: React.FC<Props> = ({ shelf, refetch }) => {
   const books = useBooksByIsbnsList(shelf.books)
   if (books.isError || books.isIdle) {
     return <ErrorPage />
@@ -22,6 +23,8 @@ const ShelfComp: React.FC<Props> = ({ shelf }) => {
       title={shelf.name}
       items={books.data.map(convertBookToCarouselItem)}
       shelf_id={shelf._id}
+      default_shelf={shelf.is_default}
+      refetch={refetch}
     />
   )
 }

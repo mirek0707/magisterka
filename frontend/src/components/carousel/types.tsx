@@ -11,4 +11,6 @@ export type BooksCarouselProps = {
   title?: string
   items: CarouselItemProps[]
   shelf_id?: string
+  default_shelf?: boolean
+  refetch?: () => void
 }
