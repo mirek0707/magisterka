@@ -38,7 +38,7 @@ const BooksPage: React.FC = () => {
   const booksPerPage = 60
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     query.set('page', value.toString() as string)
-    navigate(`/app/books?${query.toString()}`)
+    navigate(`/app/books?${query.toString()}`, { replace: true })
   }
   return (
     <Box
