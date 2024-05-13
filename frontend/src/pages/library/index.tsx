@@ -1,4 +1,6 @@
+import { Box } from '@mui/material'
 import * as React from 'react'
+import AddShelfButton from 'src/components/addShelf'
 import Library from 'src/components/library'
 import { Loading } from 'src/components/loading'
 import { useUserShelves } from 'src/shelves/rquery'
@@ -20,9 +22,13 @@ const LibraryPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-100 space-y-5">
+    <Box
+      sx={{ flexDirection: 'column', alignItems: 'flex-start' }}
+      className="flex flex-col items-center justify-center w-100 space-y-5"
+    >
+      <AddShelfButton refetch={refetch} />
       <Library shelves={shelves.data} refetch={refetch} />
-    </div>
+    </Box>
   )
 }
 

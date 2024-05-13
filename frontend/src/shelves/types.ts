@@ -8,3 +8,7 @@ export type Shelf = {
 export type ImportLCReq = {
   url: string
 }
+
+export type AddShelfReq = {
+  name: string
+}
