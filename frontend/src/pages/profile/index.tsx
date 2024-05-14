@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import * as React from 'react'
+import DeleteUserButton from 'src/components/deleteUser'
 import ImportGRButton from 'src/components/importGR'
 import ImportLCButton from 'src/components/importLC'
 import { Loading } from 'src/components/loading'
@@ -40,9 +41,24 @@ const ProfilePage: React.FC = () => {
           maxWidth: '1600px',
         }}
       >
-        <Typography variant="h4">
-          Profil użytkownika <em>{user.data.username}</em>
-        </Typography>
+        <Grid container direction={'column'}>
+          <Grid item>
+            <Typography variant="h4">
+              Profil użytkownika <em>{user.data.username}</em>
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+          >
+            <Grid item sx={{ p: 1, pl: 0 }}>
+              <DeleteUserButton user_id={user.data.id} />
+            </Grid>
+          </Grid>
+        </Grid>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
           <ListItem>
             <ListItemText
