@@ -44,7 +44,7 @@ export default function Login() {
         token: response.access_token,
       })
     } catch (e) {
-      alert('Login failed')
+      alert('Zła nazwa użytkownika lub hasło')
     }
   }
 

@@ -42,7 +42,7 @@ export default function Register() {
       alert('Registration successful')
       navigate(Routes.LoginUrl(), { replace: true })
     } catch (e) {
-      alert('Registration failed')
+      alert('Istnieje już konto z podaną nazwą użytkownika lub adresem e-mail')
     }
   }
 

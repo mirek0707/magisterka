@@ -175,14 +175,17 @@ const BooksGridWithFilters: React.FC<BooksGridWithFilters> = ({
   }
 
   React.useEffect(() => {
-    setSearchParams({
-      genre: genre as string,
-      page: page.toString() as string,
-      author: author as string,
-      publisher: publisher as string,
-      release_year_from: releaseYears[0].toString(),
-      release_year_to: releaseYears[1].toString(),
-    })
+    setSearchParams(
+      {
+        genre: genre as string,
+        page: page.toString() as string,
+        author: author as string,
+        publisher: publisher as string,
+        release_year_from: releaseYears[0].toString(),
+        release_year_to: releaseYears[1].toString(),
+      },
+      { replace: true }
+    )
   }, [genre, author, publisher, releaseYears])
 
   React.useEffect(() => {

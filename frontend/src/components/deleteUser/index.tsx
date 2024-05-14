@@ -1,13 +1,5 @@
 import NoAccountsIcon from '@mui/icons-material/NoAccounts'
-import {
-  Typography,
-  Modal,
-  Box,
-  IconButton,
-  Tooltip,
-  Grid,
-  Button,
-} from '@mui/material'
+import { Typography, Modal, Box, Grid, Button } from '@mui/material'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuthSignOutAndRedirect } from 'src/auth/hooks'
@@ -35,23 +27,14 @@ const DeleteUserButton: React.FC<Props> = ({ user_id }) => {
   }
   return (
     <>
-      <Tooltip title="Usuń konto" placement="bottom">
-        <IconButton
-          onClick={handleOpen}
-          sx={{
-            p: 0,
-            borderRadius: 1,
-            backgroundColor: 'text.primary',
-            '&:hover': {
-              backgroundColor: 'text.primary',
-              transform: 'scale(1.2)',
-            },
-          }}
-          color="inherit"
-        >
-          <NoAccountsIcon color="primary" fontSize="large" />
-        </IconButton>
-      </Tooltip>
+      <Button
+        onClick={handleOpen}
+        variant="contained"
+        startIcon={<NoAccountsIcon fontSize="large" />}
+      >
+        Usuń konto
+      </Button>
+
       <Modal
         open={open}
         onClose={handleClose}

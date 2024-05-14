@@ -66,9 +66,7 @@ const DeleteShelfButton: React.FC<Props> = ({
             sx={{
               p: 0,
               borderRadius: 1,
-              backgroundColor: 'text.primary',
               '&:hover': {
-                backgroundColor: 'text.primary',
                 transform: 'scale(1.1)',
               },
             }}
