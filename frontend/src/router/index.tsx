@@ -3,6 +3,7 @@ import AppPage from 'src/application'
 import LoginPage from 'src/auth/login'
 import RegisterPage from 'src/auth/register'
 import Layout from 'src/layout'
+import AddBookPage from 'src/pages/addBook'
 import BookPage from 'src/pages/book'
 import BooksPage from 'src/pages/books'
 import ErrorPage from 'src/pages/error'
@@ -73,6 +74,14 @@ export const BrowserRouter = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <LibraryPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: Routes.AddBookUrl(),
+            element: (
+              <ProtectedRoute>
+                <AddBookPage />
               </ProtectedRoute>
             ),
           },

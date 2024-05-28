@@ -9,6 +9,7 @@ export const Routes = {
   BooksUrl: () => `/app/books`,
   SearchUrl: () => `/app/search`,
   ProfileUrl: () => `/app/profile`,
+  AddBookUrl: () => `/app/addbook`,
 
   BookUrl: (isbn: string) => `/app/books/${isbn}`,
 }

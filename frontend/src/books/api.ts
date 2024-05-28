@@ -1,7 +1,12 @@
 import * as qs from 'qs'
-import { del } from 'src/api'
+import { del, post } from 'src/api'
 
-import { BooksPerPageReq, BooksCountFiltersReq, BooksSearchData } from './types'
+import {
+  BooksPerPageReq,
+  BooksCountFiltersReq,
+  BooksSearchData,
+  AddBookRequest,
+} from './types'
 
 export const API_ROOT_PATH = '/books'
 
@@ -30,3 +35,5 @@ export const getBooksSearchFt = (data: BooksSearchData) =>
   `${API_ROOT_PATH}/ftsearch?${qs.stringify(data)}`
 
 export const deleteBook = (isbn: string) => del(`${API_ROOT_PATH}/${isbn}`)
+
+export const addBook = (data: AddBookRequest) => post(`${API_ROOT_PATH}`, data)

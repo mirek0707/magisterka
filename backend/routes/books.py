@@ -278,6 +278,9 @@ async def add_book(_: user_dependency, create_book_model: CreateBookModel):
             status_code=409,
             detail=f"Book with ISBN: '{create_book_model.isbn}' already exist",
         )
+    if type(create_book_model.img_src) is str:
+        create_book_model.img_src = [create_book_model.img_src]
+
     new_book = BookModel(
         title=[create_book_model.title],
         author=create_book_model.author,
@@ -321,8 +324,8 @@ async def add_book(_: user_dependency, create_book_model: CreateBookModel):
         ratings_lc_number=None,
         ratings_gr_number=None,
         ratings_tk_number=None,
-        rating=None,
-        ratings_number=None,
+        rating=0,
+        ratings_number=0,
     )
 
     result = await books_collection.insert_one(new_book.model_dump(exclude=["id"]))

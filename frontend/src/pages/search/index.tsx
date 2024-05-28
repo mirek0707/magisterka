@@ -50,7 +50,7 @@ const SearchPage = () => {
     >
       <Grid container spacing={5} justifyContent={'center'}>
         <Grid item>
-          <Tooltip title="Pełne wyszukiwanie polega na przeprowadzeniu wyszukiwania pełnotekstowego na tytułach, autorach, wydawnictwach oraz opisach książek. Może wydłużyć czas wyszukiwania!">
+          <Tooltip title="'Szukaj w opisach' polega na przeprowadzeniu wyszukiwania pełnotekstowego na tytułach, autorach, wydawnictwach oraz opisach książek. Może wydłużyć czas wyszukiwania!">
             <FormControlLabel
               control={
                 <Switch
@@ -61,7 +61,7 @@ const SearchPage = () => {
                   }}
                 />
               }
-              label="Pełne wyszukiwanie"
+              label="Szukaj w opisach"
               labelPlacement="bottom"
             />
           </Tooltip>

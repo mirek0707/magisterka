@@ -1,3 +1,4 @@
+import { PostAdd } from '@mui/icons-material'
 import BookIcon from '@mui/icons-material/Book'
 import HomeIcon from '@mui/icons-material/Home'
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
@@ -27,6 +28,11 @@ export const LayoutDrawerNavConfig: Array<ListItemConfig> = [
     name: 'Biblioteczka',
     path: Routes.LibraryUrl(),
     icon: <LibraryBooksIcon />,
+  },
+  {
+    name: 'Dodaj książkę',
+    path: Routes.AddBookUrl(),
+    icon: <PostAdd />,
   },
   {
     name: 'Profil',

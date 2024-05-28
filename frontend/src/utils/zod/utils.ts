@@ -9,6 +9,10 @@ export const ErrorMessages = {
     'Hasło musi zawierać małą, wielką literę, cyfrę i znak specjalny',
   usernameLength: 'Nazwa użytkownika musi zawierać od 3 do 12 znaków',
   urlNotValid: 'Nieprawidłowy adres URL',
+  pagesNotValid: 'Podaj poprawną liczbę stron',
+  isbnNotValid: 'Podaj poprawny numer ISBN',
+  yearNotValid: 'Podaj poprawny rok',
+  linkNotValid: 'Podaj poprawny link',
 }
 
 const passwordValidation = new RegExp(

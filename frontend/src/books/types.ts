@@ -67,3 +67,18 @@ export type BooksSearchData = {
   query: string
   num_of_books?: number
 }
+
+export type AddBookRequest = {
+  title: string
+  author: string[]
+  pages?: number
+  isbn: string
+  publisher?: string
+  original_title?: string
+  release_date?: Date
+  release_year?: number
+  polish_release_date?: Date
+  img_src?: string[] | null
+  description?: string
+  genre: string
+}
