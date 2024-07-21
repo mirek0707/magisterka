@@ -1,6 +1,7 @@
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { plPL } from '@mui/x-date-pickers/locales'
 import dayjs from 'dayjs'
 import * as React from 'react'
 import { Controller } from 'react-hook-form'
@@ -23,7 +24,12 @@ const DateInput: React.FC<Props> = ({
     <Controller
       name={name}
       render={({ field: { value, onChange }, fieldState: { error } }) => (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider
+          localeText={
+            plPL.components.MuiLocalizationProvider.defaultProps.localeText
+          }
+          dateAdapter={AdapterDayjs}
+        >
           <DatePicker
             label={label}
             format="YYYY-MM-DD"
@@ -33,7 +39,6 @@ const DateInput: React.FC<Props> = ({
             maxDate={maxDate}
             slotProps={{
               textField: {
-                size: 'small',
                 error: !!error,
                 helperText: error?.message,
               },

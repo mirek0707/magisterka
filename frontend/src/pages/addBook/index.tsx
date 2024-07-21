@@ -4,6 +4,7 @@ import {
   Button,
   CssBaseline,
   Divider,
+  FormControl,
   Grid,
   InputLabel,
   MenuItem,
@@ -124,8 +125,55 @@ const AddBookPage = () => {
           </Grid>
           <Grid item>
             <StyledForm methods={methods} onSubmit={handleSubmit(onSubmit)}>
-              <TextInput name="isbn" label="ISBN" required />
               <TextInput name="title" label="Tytuł" required />
+              <>
+                <ul>
+                  {fields.map((item, index) => {
+                    return (
+                      <li key={item.id} className={index !== 0 ? 'mt-2' : ''}>
+                        <Grid container direction="row">
+                          <Grid item xs>
+                            <Controller
+                              name={`author.${index}.value`}
+                              control={control}
+                              render={({ field, fieldState: { error } }) => (
+                                <TextField
+                                  fullWidth
+                                  {...field}
+                                  label={'Autor *'}
+                                  error={!!error}
+                                  helperText={error?.message}
+                                />
+                              )}
+                            />
+                          </Grid>
+                          <Grid item>
+                            <button
+                              type="button"
+                              className="bg-white hover:bg-gray-100 text-gray-800 py-2 px-4 border border-gray-400 rounded shadow h-14 ml-2"
+                              onClick={() => remove(index)}
+                            >
+                              Usuń autora
+                            </button>
+                          </Grid>
+                        </Grid>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <section>
+                  <button
+                    className="bg-white hover:bg-gray-100 text-gray-800 py-2 px-4 border border-gray-400 rounded shadow h-14"
+                    type="button"
+                    onClick={() => {
+                      append({ value: '' })
+                    }}
+                  >
+                    Dodaj kolejnego autora
+                  </button>
+                </section>
+              </>
+              <TextInput name="isbn" label="ISBN" required />
               <NumberInput
                 name="pages"
                 label="Liczba stron"
@@ -169,59 +217,31 @@ const AddBookPage = () => {
                 maxRows={10}
                 required={false}
               />
-              <InputLabel id="select-genre-label">Gatunek</InputLabel>
-              <Select
-                labelId="select-genre-label"
-                // name="genre"
-                defaultValue={'albumy'}
-                sx={{ width: 1 }}
-                {...register('genre')}
-              >
-                {genres.data.genres.map((item: string, index: number) => {
-                  if (item !== '')
-                    return (
-                      <MenuItem key={index} value={item}>
-                        {item}
-                      </MenuItem>
-                    )
-                })}
-              </Select>
-              <>
-                <ul>
-                  {fields.map((item, index) => {
-                    return (
-                      <li key={item.id}>
-                        <Controller
-                          name={`author.${index}.value`}
-                          control={control}
-                          render={({ field, fieldState: { error } }) => (
-                            <TextField
-                              {...field}
-                              label={'Autor'}
-                              error={!!error}
-                              helperText={error?.message}
-                            />
-                          )}
-                        />
-                        <button type="button" onClick={() => remove(index)}>
-                          Delete
-                        </button>
-                      </li>
-                    )
+              <FormControl>
+                <InputLabel id="select-genre-label" sx={{ bgcolor: 'white' }}>
+                  Gatunek
+                </InputLabel>
+                <Select
+                  labelId="select-genre-label"
+                  // name="genre"
+                  defaultValue={'albumy'}
+                  sx={{ width: 1 }}
+                  {...register('genre')}
+                  variant="outlined"
+                >
+                  {genres.data.genres.map((item: string, index: number) => {
+                    if (item !== '')
+                      return (
+                        <MenuItem key={index} value={item}>
+                          {item}
+                        </MenuItem>
+                      )
                   })}
-                </ul>
-                <section>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      append({ value: '' })
-                    }}
-                  >
-                    append
-                  </button>
-                </section>
-              </>
-              <Button type="submit">Dodaj</Button>
+                </Select>
+              </FormControl>
+              <Button type="submit" variant="contained">
+                Dodaj książkę
+              </Button>
             </StyledForm>
           </Grid>
         </Grid>
