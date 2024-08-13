@@ -8,11 +8,10 @@
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-
   outputs = { self, nixpkgs }:
   let
       system = "x86_64-linux";
-      pkgs = (import nixpkgs { inherit system; config = { permittedInsecurePackages = ["electron-20.3.12" "electron-31.3.0" ]; }; });
+      pkgs = nixpkgs.legacyPackages.${system};
   in
   {
     scrapy =
@@ -40,7 +39,6 @@
             pkgs.nodejs_21
             pkgs.python311Packages.multipart
             pkgs.python311Packages.pandas
-            pkgs.electron_20
           ];
 
           shellHook = ''

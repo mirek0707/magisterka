@@ -1,13 +1,12 @@
 import scrapy
-import re
 
 
 class BooksSpider(scrapy.Spider):
     name = "books"
     allowed_domains = ["taniaksiazka.pl"]
-    url_prefix = "https://www.taniaksiazka.pl"
-
     start_urls = ["https://www.taniaksiazka.pl/ksiazki-c-14141.html"]
+
+    url_prefix = "https://www.taniaksiazka.pl"
 
     def parse(self, response):
         books = response.xpath("//section/div/div/article/ul/li")
@@ -15,8 +14,7 @@ class BooksSpider(scrapy.Spider):
             url = book.xpath(".//div/div/div/div/div/div/h3/a/@href").get()
             yield response.follow(url=url, callback=self.parse_book)
         next_page = response.xpath(
-            "//div[5]/section/div/div/article/div/\
-                ul/li[@class='next']/a/@href"
+            "//div[5]/section/div/div/article/div/ul/li[@class='next']/a/@href"
         ).get()
         yield scrapy.Request(url=self.url_prefix + next_page, callback=self.parse)
 
@@ -52,8 +50,7 @@ class BooksSpider(scrapy.Spider):
             or "0"
         )
 
-        pattern = r"^0+(X)?$"
-        if not re.match(pattern, isbn) and isbn != "":
+        if isbn != "":
             yield {
                 "title": title,
                 "author": author,
