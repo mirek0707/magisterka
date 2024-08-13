@@ -8,12 +8,13 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      src: path.resolve('src/'),
+      // src: path.resolve('src/'),
     },
   },
   server: {
     watch: {
       usePolling: true,
     },
+    port: 5173,
   },
 })
