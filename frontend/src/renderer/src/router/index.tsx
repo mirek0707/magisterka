@@ -123,12 +123,12 @@ export const BrowserRouter = createBrowserRouter([
 
       {
         path: `*`,
-        element: <ErrorPage />,
+        element: <LoginPage />,
       },
     ],
   },
   {
     path: `*`,
-    element: <ErrorPage />,
+    element: <LoginPage />,
   },
 ])

@@ -1,4 +1,5 @@
 "use strict";
+const path = require("path");
 const { app, BrowserWindow } = require("electron");
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -8,7 +9,8 @@ const createWindow = () => {
     minHeight: 400,
     autoHideMenuBar: true
   });
-  win.loadURL("http://localhost:5173");
+  win.loadFile(path.join(__dirname, "../renderer/index.html"));
+  win.webContents.openDevTools();
 };
 app.whenReady().then(() => {
   createWindow();
