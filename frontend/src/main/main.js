@@ -1,5 +1,3 @@
-import path from 'path'
-
 const { app, BrowserWindow } = require('electron')
 
 const createWindow = () => {
@@ -11,9 +9,7 @@ const createWindow = () => {
     autoHideMenuBar: true
   })
 
-
-  win.loadFile(path.join(__dirname, "../renderer/index.html"))
-  win.webContents.openDevTools()
+  win.loadURL('http://localhost:5173')
 }
 
 app.whenReady().then(() => {
