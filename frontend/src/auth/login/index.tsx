@@ -5,12 +5,11 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { postLogin } from 'src/auth/api'
 import { useAuthContext } from 'src/auth/context'
 import { useIsAuthenticated } from 'src/auth/hooks'
@@ -118,7 +117,10 @@ export default function Login() {
           </Button>
           <Grid container justifyContent={'center'}>
             <Grid item>
-              <Link href={Routes.RegisterUrl()} variant="body2">
+              <Link
+                className="text-blue-600 underline"
+                to={Routes.RegisterUrl()}
+              >
                 {'Nie posiadasz jeszcze konta? Zarejestruj się'}
               </Link>
             </Grid>
